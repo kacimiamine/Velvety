@@ -1,0 +1,79 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: kacimiamine <contact@kacimiamine.com>
+Date: Mon, 28 Sep 2026 12:07:26 +0100
+Subject: [PATCH] Velvety config
+
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 478f4461ab3fb21b288aa2f6079860f23832e622..3932f631448e363e4a09d11539d49d78a99e3a81 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -988,6 +988,7 @@ public final class CraftServer implements Server {
+ 
+         org.spigotmc.SpigotConfig.init((File) this.console.options.valueOf("spigot-settings")); // Spigot
+         this.console.paperConfigurations.reloadConfigs(this.console);
++        com.kacimiamine.velvety.config.VelvetyConfig.init((File) this.console.options.valueOf("velvety-settings")); // Velvety - Velvety config
+         for (ServerLevel world : this.console.getAllLevels()) {
+             // world.serverLevelData.setDifficulty(config.difficulty); // Paper - per level difficulty
+             world.setSpawnSettings(world.isSpawningMonsters()); // Paper - per level difficulty (from MinecraftServer#setDifficulty(ServerLevel, Difficulty, boolean))
+@@ -1003,6 +1004,7 @@ public final class CraftServer implements Server {
+                 }
+             }
+             world.spigotConfig.init(); // Spigot
++            world.velvetyConfig.init(); // Velvety - Velvety config
+         }
+ 
+         Plugin[] pluginClone = pluginManager.getPlugins().clone(); // Paper
+@@ -1020,6 +1022,7 @@ public final class CraftServer implements Server {
+         org.spigotmc.SpigotConfig.registerCommands(); // Spigot
+         io.papermc.paper.command.PaperCommands.registerCommands(this.console); // Paper
+         this.spark.registerCommandBeforePlugins(this); // Paper - spark
++        com.kacimiamine.velvety.config.VelvetyConfig.registerCommands(); // Velvety - Velvety config
+         this.overrideAllCommandBlockCommands = this.commandsConfiguration.getStringList("command-block-overrides").contains("*");
+         this.ignoreVanillaPermissions = this.commandsConfiguration.getBoolean("ignore-vanilla-permissions");
+ 
+@@ -2718,6 +2721,13 @@ public final class CraftServer implements Server {
+             return CraftServer.this.console.paperConfigurations.createLegacyObject(CraftServer.this.console);
+         }
+ 
++        // Velvety start - Velvety config
++        @Override
++        public YamlConfiguration getVelvetyConfig() {
++            return com.kacimiamine.velvety.config.VelvetyConfig.config;
++        }
++        // Velvety end - Velvety config
++
+         @Override
+         public void restart() {
+             CraftServer.this.restart();
+diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
+index 8ce8de8eedfe8557848b0508857744a5b9641239..943ec92b459c4fa9713c0ef96d4a2f7c33e65c84 100644
+--- a/src/main/java/org/bukkit/craftbukkit/Main.java
++++ b/src/main/java/org/bukkit/craftbukkit/Main.java
+@@ -23,6 +23,11 @@ public class Main {
+ 
+     public static void main(String[] args) {
+         if (System.getProperty("jdk.nio.maxCachedBufferSize") == null) System.setProperty("jdk.nio.maxCachedBufferSize", "262144"); // Paper - cap per-thread NIO cache size; https://www.evanjones.ca/java-bytebuffer-leak.html
++        // Velvety start - Velvety config
++        String sparkExtraConfigs = System.getProperty("spark.serverconfigs.extra");
++        sparkExtraConfigs = sparkExtraConfigs == null ? "velvety.yml" : sparkExtraConfigs + ",velvety.yml";
++        System.setProperty("spark.serverconfigs.extra", sparkExtraConfigs);
++        // Velvety end - Velvety config
+         OptionParser parser = new OptionParser() {
+             {
+                 this.acceptsAll(asList("?", "help"), "Show the help");
+@@ -139,6 +144,14 @@ public class Main {
+                         .defaultsTo(new File[] {})
+                         .describedAs("Plugin directory");
+ 
++                // Velvety start - Velvety config
++                this.acceptsAll(asList("velvety", "velvety-settings"), "File for Velvety settings")
++                    .withRequiredArg()
++                    .ofType(File.class)
++                    .defaultsTo(new File("velvety.yml"))
++                    .describedAs("Yml file");
++                // Velvety end - Velvety config
++
+                 this.accepts("server-name", "Name of the server")
+                         .withRequiredArg()
+                         .ofType(String.class)

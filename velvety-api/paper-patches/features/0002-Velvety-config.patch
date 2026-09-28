@@ -1,0 +1,23 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: kacimiamine <contact@kacimiamine.com>
+Date: Mon, 28 Sep 2026 12:07:26 +0100
+Subject: [PATCH] Velvety config
+
+
+diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
+index ef0069ed4c1d0d0c961ffdcd3159fe5508396bc9..8a91652b792e41bd88889c2b4f280bb61820d26a 100644
+--- a/src/main/java/org/bukkit/Server.java
++++ b/src/main/java/org/bukkit/Server.java
+@@ -2446,6 +2446,12 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
+         }
+         // Paper end
+ 
++        // Velvety start - Velvety config
++        public org.bukkit.configuration.file.YamlConfiguration getVelvetyConfig() {
++            throw new UnsupportedOperationException("Not supported yet.");
++        }
++        // Velvety end - Velvety config
++
+         /**
+          * Sends the component to the player
+          *
