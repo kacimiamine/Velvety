@@ -1,0 +1,166 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: kacimiamine <contact@kacimiamine.com>
+Date: Mon, 28 Sep 2026 10:48:43 +0100
+Subject: [PATCH] Rebrand
+
+
+diff --git a/src/main/java/com/destroystokyo/paper/Metrics.java b/src/main/java/com/destroystokyo/paper/Metrics.java
+index 9f4d73fd321f6f0cd19fdd1b63068d2ea6c0816b..37ab9799d9fec5c939cd2af7296ad7f2b6b6a01e 100644
+--- a/src/main/java/com/destroystokyo/paper/Metrics.java
++++ b/src/main/java/com/destroystokyo/paper/Metrics.java
+@@ -593,7 +593,7 @@ public class Metrics {
+             boolean logFailedRequests = config.getBoolean("logFailedRequests", false);
+             // Only start Metrics, if it's enabled in the config
+             if (config.getBoolean("enabled", true)) {
+-                Metrics metrics = new Metrics("Paper", serverUUID, logFailedRequests, Bukkit.getLogger());
++                Metrics metrics = new Metrics("Velvety", serverUUID, logFailedRequests, Bukkit.getLogger()); // Velvety - Rebrand
+ 
+                 metrics.addCustomChart(new Metrics.SimplePie("minecraft_version", () -> {
+                     String minecraftVersion = Bukkit.getVersion();
+@@ -603,15 +603,15 @@ public class Metrics {
+ 
+                 metrics.addCustomChart(new Metrics.SingleLineChart("players", () -> Bukkit.getOnlinePlayers().size()));
+                 metrics.addCustomChart(new Metrics.SimplePie("online_mode", () -> Bukkit.getOnlineMode() ? "online" : "offline"));
+-                final String paperVersion;
++                final String velvetyVersion; // Velvety - Rebrand
+                 final String implVersion = org.bukkit.craftbukkit.Main.class.getPackage().getImplementationVersion();
+                 if (implVersion != null) {
+                     final String buildOrHash = implVersion.substring(implVersion.lastIndexOf('-') + 1);
+-                    paperVersion = "git-Paper-%s-%s".formatted(Bukkit.getServer().getMinecraftVersion(), buildOrHash);
++                    velvetyVersion = "Velvety-%s-%s".formatted(Bukkit.getServer().getMinecraftVersion(), buildOrHash); // Velvety - Rebrand
+                 } else {
+-                    paperVersion = "unknown";
++                    velvetyVersion = "unknown"; // Velvety - Rebrand
+                 }
+-                metrics.addCustomChart(new Metrics.SimplePie("paper_version", () -> paperVersion));
++                metrics.addCustomChart(new Metrics.SimplePie("velvety_version", () -> velvetyVersion)); // Velvety - Rebrand
+ 
+                 metrics.addCustomChart(new Metrics.DrilldownPie("java_version", () -> {
+                     Map<String, Map<String, Integer>> map = new HashMap<>();
+diff --git a/src/main/java/com/destroystokyo/paper/console/PaperConsole.java b/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
+index 43006c22f26b9b3ff83d6d9511a8f29921b7f46d..38440cb1b5f36b08f43719b6992135df81f1aed4 100644
+--- a/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
++++ b/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
+@@ -21,7 +21,7 @@ public final class PaperConsole extends SimpleTerminalConsole {
+     @Override
+     protected LineReader buildReader(LineReaderBuilder builder) {
+         builder
+-                .appName("Paper")
++                .appName("Velvety") // Velvety - Rebrand
+                 .variable(LineReader.HISTORY_FILE, PaperCacheDir.moveFromServerRootAndGet(".console_history", "console_history"))
+                 .completer(new ConsoleCommandCompleter(this.server))
+                 .option(LineReader.Option.COMPLETE_IN_WORD, true);
+diff --git a/src/main/java/io/papermc/paper/PaperServerInternalAPIBridge.java b/src/main/java/io/papermc/paper/PaperServerInternalAPIBridge.java
+index 0152a712697acbe78eb2451d5b40cd407ad545ee..8057bf78c9993c1014a373c8be9c94be869b5211 100644
+--- a/src/main/java/io/papermc/paper/PaperServerInternalAPIBridge.java
++++ b/src/main/java/io/papermc/paper/PaperServerInternalAPIBridge.java
+@@ -188,7 +188,7 @@ public class PaperServerInternalAPIBridge implements InternalAPIBridge {
+ 
+     @Override
+     public VersionFetcher getVersionFetcher() {
+-        return new PaperVersionFetcher();
++        return new com.kacimiamine.velvety.util.VelvetyVersionFetcher(); // Velvety - Rebrand
+     }
+ 
+     @Override
+diff --git a/src/main/java/io/papermc/paper/ServerBuildInfoImpl.java b/src/main/java/io/papermc/paper/ServerBuildInfoImpl.java
+index 74ffdc823e66fc5ec027c4b7c462382bcbfe2be2..730230a0a4a69d96af8a521fab45c5c3ee9372e5 100644
+--- a/src/main/java/io/papermc/paper/ServerBuildInfoImpl.java
++++ b/src/main/java/io/papermc/paper/ServerBuildInfoImpl.java
+@@ -31,6 +31,7 @@ public record ServerBuildInfoImpl(
+     private static final String ATTRIBUTE_GIT_COMMIT = "Git-Commit";
+ 
+     private static final String BRAND_PAPER_NAME = "Paper";
++    private static final String BRAND_VELVETY_NAME = "Velvety"; // Velvety - Rebrand
+ 
+     private static final String BUILD_DEV = "DEV";
+ 
+@@ -42,9 +43,9 @@ public record ServerBuildInfoImpl(
+         this(
+             getManifestAttribute(manifest, ATTRIBUTE_BRAND_ID)
+                 .map(Key::key)
+-                .orElse(BRAND_PAPER_ID),
++                .orElse(BRAND_VELVETY_ID), // Velvety - Rebrand
+             getManifestAttribute(manifest, ATTRIBUTE_BRAND_NAME)
+-                .orElse(BRAND_PAPER_NAME),
++                .orElse(BRAND_VELVETY_NAME), // Velvety - Rebrand
+             SharedConstants.getCurrentVersion().id(),
+             SharedConstants.getCurrentVersion().name(),
+             getManifestAttribute(manifest, ATTRIBUTE_BUILD_NUMBER)
+@@ -61,7 +62,7 @@ public record ServerBuildInfoImpl(
+ 
+     @Override
+     public boolean isBrandCompatible(final @NotNull Key brandId) {
+-        return brandId.equals(this.brandId);
++        return brandId.equals(this.brandId) || brandId.equals(BRAND_PAPER_ID); // Velvety - Rebrand
+     }
+ 
+     @Override
+diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
+index 7ffb7a210bf840009158d5e4364dad78221ded6c..1745a72726207b0f99aa8768c71a5bba945c70d1 100644
+--- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
++++ b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
+@@ -491,7 +491,7 @@ public class CraftScheduler implements BukkitScheduler {
+                 this.parsePending();
+             } else {
+                 // this.debugTail = this.debugTail.setNext(new CraftAsyncDebugger(this.currentTick + CraftScheduler.RECENT_TICKS, task.getOwner(), task.getTaskClass())); // Paper
+-                task.getOwner().getLogger().log(Level.SEVERE, "Unexpected Async Task in the Sync Scheduler. Report this to Paper"); // Paper
++                task.getOwner().getLogger().log(Level.SEVERE, "Unexpected Async Task in the Sync Scheduler. Report this to Velvety"); // Paper // Velvety - Rebrand
+                 // We don't need to parse pending
+                 // (async tasks must live with race-conditions if they attempt to cancel between these few lines of code)
+             }
+diff --git a/src/main/java/org/spigotmc/WatchdogThread.java b/src/main/java/org/spigotmc/WatchdogThread.java
+index ab6c553f0f5c228e65c95538fc2deef07d9cd077..cc98b400c32ae04fbb81b94c1ea3af5f1e60c2af 100644
+--- a/src/main/java/org/spigotmc/WatchdogThread.java
++++ b/src/main/java/org/spigotmc/WatchdogThread.java
+@@ -25,7 +25,7 @@ public class WatchdogThread extends ca.spottedleaf.moonrise.common.util.TickThre
+     private volatile boolean stopping;
+ 
+     private WatchdogThread(long timeoutTime, boolean restart) {
+-        super("Paper Watchdog Thread");
++        super("Watchdog Thread"); // Velvety - Generic name
+         this.timeoutTime = timeoutTime;
+         this.restart = restart;
+         this.earlyWarningEvery = Math.min(GlobalConfiguration.get().watchdog.earlyWarningEvery, timeoutTime);
+@@ -75,14 +75,14 @@ public class WatchdogThread extends ca.spottedleaf.moonrise.common.util.TickThre
+                 this.lastEarlyWarning = currentTime;
+                 if (isLongTimeout) {
+                     logger.log(Level.SEVERE, "------------------------------");
+-                    logger.log(Level.SEVERE, "The server has stopped responding! This is (probably) not a Paper bug."); // Paper
++                    logger.log(Level.SEVERE, "The server has stopped responding! This is (probably) not a Velvety bug."); // Paper // Velvety - Rebrand
+                     logger.log(Level.SEVERE, "If you see a plugin in the Server thread dump below, then please report it to that author");
+                     logger.log(Level.SEVERE, "\t *Especially* if it looks like HTTP or MySQL operations are occurring");
+                     logger.log(Level.SEVERE, "If you see a world save or edit, then it means you did far more than your server can handle at once");
+                     logger.log(Level.SEVERE, "\t If this is the case, consider increasing timeout-time in spigot.yml but note that this will replace the crash with LARGE lag spikes");
+-                    logger.log(Level.SEVERE, "If you are unsure or still think this is a Paper bug, please report this to https://github.com/PaperMC/Paper/issues");
++                    logger.log(Level.SEVERE, "If you are unsure or still think this is a Velvety bug, please report this to https://github.com/kacimiamine/Velvety/issues"); // Velvety - Rebrand
+                     logger.log(Level.SEVERE, "Be sure to include ALL relevant console errors and Minecraft crash reports");
+-                    logger.log(Level.SEVERE, "Paper version: " + Bukkit.getServer().getVersion());
++                    logger.log(Level.SEVERE, "Velvety version: " + Bukkit.getServer().getVersion()); // Velvety - Rebrand
+ 
+                     if (net.minecraft.world.level.Level.lastPhysicsProblem != null) {
+                         logger.log(Level.SEVERE, "------------------------------");
+@@ -102,12 +102,12 @@ public class WatchdogThread extends ca.spottedleaf.moonrise.common.util.TickThre
+                     }
+                     // Paper end
+                 } else {
+-                    logger.log(Level.SEVERE, "--- DO NOT REPORT THIS TO PAPER - THIS IS NOT A BUG OR A CRASH  - " + Bukkit.getServer().getVersion() + " ---");
++                    logger.log(Level.SEVERE, "--- DO NOT REPORT THIS TO VELVETY - THIS IS NOT A BUG OR A CRASH  - " + Bukkit.getServer().getVersion() + " ---"); // Velvety - Rebrand
+                     logger.log(Level.SEVERE, "The server has not responded for " + (currentTime - lastTick) / 1000 + " seconds! Creating thread dump");
+                 }
+                 // Paper end - Different message for short timeout
+                 logger.log(Level.SEVERE, "------------------------------");
+-                logger.log(Level.SEVERE, "Server thread dump (Look for plugins here before reporting to Paper!):"); // Paper
++                logger.log(Level.SEVERE, "Server thread dump (Look for plugins here before reporting to Velvety!):"); // Paper // Velvety - Rebrand
+                 FeatureHooks.dumpAllChunkLoadInfo(MinecraftServer.getServer(), isLongTimeout); // Paper - log detailed tick information
+                 WatchdogThread.dumpThread(ManagementFactory.getThreadMXBean().getThreadInfo(MinecraftServer.getServer().getRunningThread().threadId(), Integer.MAX_VALUE), logger);
+                 logger.log(Level.SEVERE, "------------------------------");
+@@ -120,7 +120,7 @@ public class WatchdogThread extends ca.spottedleaf.moonrise.common.util.TickThre
+                         WatchdogThread.dumpThread(thread, logger);
+                     }
+                 } else {
+-                    logger.log(Level.SEVERE, "--- DO NOT REPORT THIS TO PAPER - THIS IS NOT A BUG OR A CRASH ---");
++                    logger.log(Level.SEVERE, "--- DO NOT REPORT THIS TO VELVETY - THIS IS NOT A BUG OR A CRASH ---"); // Velvety - Rebrand
+                 }
+ 
+                 logger.log(Level.SEVERE, "------------------------------");

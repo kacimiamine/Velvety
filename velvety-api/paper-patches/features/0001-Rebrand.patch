@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: kacimiamine <contact@kacimiamine.com>
+Date: Mon, 28 Sep 2026 10:48:43 +0100
+Subject: [PATCH] Rebrand
+
+
+diff --git a/src/main/java/io/papermc/paper/ServerBuildInfo.java b/src/main/java/io/papermc/paper/ServerBuildInfo.java
+index 4e099b584c3435ba1ebce492011d35ae1ac0cdf8..13be9a90225547e6eb0ff488dadc4da651885ef5 100644
+--- a/src/main/java/io/papermc/paper/ServerBuildInfo.java
++++ b/src/main/java/io/papermc/paper/ServerBuildInfo.java
+@@ -17,6 +17,13 @@ public interface ServerBuildInfo {
+      */
+     Key BRAND_PAPER_ID = Key.key("papermc", "paper");
+ 
++    // Velvety start - Rebrand
++    /**
++     * The brand id for Velvety.
++     */
++    Key BRAND_VELVETY_ID = Key.key("velvetymc", "velvetymc");
++    // Velvety end - Rebrand
++
+     /**
+      * Gets the {@code ServerBuildInfo}.
+      *

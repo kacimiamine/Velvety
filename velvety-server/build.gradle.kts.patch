@@ -1,0 +1,110 @@
+--- a/paper-server/build.gradle.kts
++++ b/paper-server/build.gradle.kts
+@@ -22,9 +_,21 @@
+     minecraftVersion = providers.gradleProperty("mcVersion")
+     gitFilePatches = false
+ 
+-    updatingMinecraft {
++    // Velvety start
++    val velvety = forks.register("velvety") {
++        upstream.patchDir("paperServer") {
++            upstreamPath = "paper-server"
++            excludes = setOf("src/minecraft", "patches", "build.gradle.kts")
++            patchesDir = rootDirectory.dir("velvety-server/paper-patches")
++            outputDir = rootDirectory.dir("paper-server")
++        }
++    }
++    activeFork = velvety
++    // Velvety end
++
++    /*updatingMinecraft { // Velvety start
+         //oldPaperCommit = "e5fe71723e2ffde7cc9fafc085ac3bb73e63175e"
+-    }
++    }*/ // Velvety end
+ }
+ 
+ tasks.generateDevelopmentBundle {
+@@ -86,7 +_,21 @@
+     }
+ }
+ 
+-val log4jPlugins = sourceSets.create("log4jPlugins")
++// Velvety start
++sourceSets {
++    main {
++        java { srcDir("../paper-server/src/main/java") }
++        resources { srcDir("../paper-server/src/main/resources") }
++    }
++    test {
++        java { srcDir("../paper-server/src/test/java") }
++        resources { srcDir("../paper-server/src/test/resources") }
++    }
++}
++val log4jPlugins = sourceSets.create("log4jPlugins") {
++    java { srcDir("../paper-server/src/log4jPlugins/java") }
++}
++// Velvety end
+ configurations.named(log4jPlugins.compileClasspathConfigurationName) {
+     extendsFrom(configurations.compileClasspath.get())
+ }
+@@ -109,7 +_,7 @@
+ }
+ 
+ dependencies {
+-    implementation(project(":paper-api"))
++    implementation(project(":velvety-api")) // Velvety
+     implementation(platform("ca.spottedleaf.leafpile:bom:1.2.4"))
+     implementation("ca.spottedleaf.leafpile:common")
+     implementation("ca.spottedleaf.leafpile:concurrentutil")
+@@ -167,21 +_,21 @@
+         val git = Git(rootProject.layout.projectDirectory.path)
+         val mcVersion = rootProject.providers.gradleProperty("mcVersion").get()
+         val build = System.getenv("BUILD_NUMBER") ?: null
+-        val buildTime = providers.environmentVariable("BUILD_STARTED_AT").map(Instant::parse).orElse(Instant.EPOCH).get()
++        val buildTime = Instant.now() // Velvety
+         val gitHash = git.exec(providers, "rev-parse", "--short=7", "HEAD").get().trim()
+         val implementationVersion = "$mcVersion-${build ?: "DEV"}-$gitHash"
+         val date = git.exec(providers, "show", "-s", "--format=%ci", gitHash).get().trim()
+         val gitBranch = git.exec(providers, "rev-parse", "--abbrev-ref", "HEAD").get().trim()
+         attributes(
+             "Main-Class" to "org.bukkit.craftbukkit.Main",
+-            "Implementation-Title" to "Paper",
++            "Implementation-Title" to "Velvety", // Velvety
+             "Implementation-Version" to implementationVersion,
+             "Implementation-Vendor" to date,
+-            "Specification-Title" to "Paper",
++            "Specification-Title" to "Velvety", // Velvety
+             "Specification-Version" to project.version,
+-            "Specification-Vendor" to "Paper Team",
+-            "Brand-Id" to "papermc:paper",
+-            "Brand-Name" to "Paper",
++            "Specification-Vendor" to "Velvety Team", // Velvety
++            "Brand-Id" to "velvetymc:velvety", // Velvety
++            "Brand-Name" to "Velvety", // Velvety
+             "Build-Number" to (build ?: ""),
+             "Build-Time" to buildTime.toString(),
+             "Git-Branch" to gitBranch,
+@@ -249,7 +_,7 @@
+     jvmArgumentProviders.add(provider)
+ }
+ 
+-val generatedDir: java.nio.file.Path = layout.projectDirectory.dir("src/generated/java").asFile.toPath()
++val generatedDir: java.nio.file.Path = layout.projectDirectory.dir("../paper-server/src/generated/java").asFile.toPath() // Velvety
+ idea {
+     module {
+         generatedSourceDirs.add(generatedDir.toFile())
+@@ -330,7 +_,7 @@
+     mainClass.set(null as String?)
+ }
+ 
+-fill {
++/*fill { // Velvety end
+     project("paper")
+     versionFamily(paperweight.minecraftVersion.map { it.split(".", "-").takeWhile { part -> part.toIntOrNull() != null }.take(2).joinToString(".") })
+     version(paperweight.minecraftVersion)
+@@ -349,4 +_,4 @@
+ 
+ tasks.named("publishToFill") {
+     notCompatibleWithConfigurationCache("Holds an HttpClient in a task field")
+-}
++}*/ // Velvety end
