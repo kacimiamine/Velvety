@@ -9,11 +9,21 @@ function getCommits() {
     curl -H "Accept: application/vnd.github.v3+json" https://api.github.com/repos/"$1"/compare/"$2"..."$3" | jq -r '.commits[] | "'"$1"'@\(.sha[:8]) \(.commit.message | split("\r\n")[0] | split("\n")[0])" | sub("\\[ci( |-)skip]"; "[ci/skip]")'
 }
 
+function getDiff() {
+    if ! git diff --cached --quiet -- gradle.properties; then
+        echo "gradle.properties already staged"
+    else
+        git add gradle.properties
+    fi
+
+    git diff --cached gradle.properties | sed -n "s/^${1}paperCommit=//p"
+}
+
 (
 set -e
 PS1="$"
 
-paperHash=$(git diff gradle.properties | awk '/^-paperCommit =/{print $NF}')
+paperHash=$(getDiff '-')
 
 TEMP=$(getopt --long paper: -o "" -- "$@")
 eval set -- "$TEMP"
@@ -35,7 +45,7 @@ logsuffix=""
 
 # Paper updates
 if [ -n "$paperHash" ]; then
-    newHash=$(git diff gradle.properties | awk '/^+paperCommit =/{print $NF}')
+    newHash=$(getDiff '+')
     paper=$(getCommits "PaperMC/Paper" "$paperHash" $(echo $newHash | grep . -q && echo $newHash || echo "HEAD"))
 
     # Updates found
@@ -48,7 +58,7 @@ fi
 disclaimer="Upstream has released updates that appear to apply and compile correctly"
 log="Updated Upstream ($updated)\n\n${disclaimer}${logsuffix}"
 
-git add gradle.properties
+git add -A
 
 echo -e "$log" | git commit -F -
 
