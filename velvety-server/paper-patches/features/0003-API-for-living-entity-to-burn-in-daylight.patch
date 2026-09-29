@@ -1,0 +1,46 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: kacimiamine <contact@kacimiamine.com>
+Date: Tue, 29 Sep 2026 10:27:09 +0100
+Subject: [PATCH] API for living entity to burn in daylight
+
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
+index 8cdec4f9721b0a4959e13e340d35a7b95fbdf3e5..3fdfb48f0e9264d0337ab3a0f8f08c0ab7bd39b1 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftLivingEntity.java
+@@ -1156,4 +1156,16 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
+         manager.untrackWaypoint(getHandle());
+         manager.trackWaypoint(getHandle());
+     }
++
++    // Velvety start - API for living entity to burn in daylight
++    @Override
++    public boolean shouldBurnInDay() {
++        return this.getHandle().shouldBurnInDay();
++    }
++
++    @Override
++    public void setShouldBurnInDay(final boolean shouldBurnInDay) {
++        this.getHandle().setShouldBurnInDay(shouldBurnInDay);
++    }
++    // Velvety end - API for living entity to burn in daylight
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPhantom.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPhantom.java
+index db0e625d8ba721b0ad6913fe4a11ed8eb939d344..9eb6597e64d218f1f25b048ab906441ad5c3b0d3 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPhantom.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPhantom.java
+@@ -35,12 +35,12 @@ public class CraftPhantom extends CraftMob implements Phantom, CraftEnemy {
+ 
+     @Override
+     public boolean shouldBurnInDay() {
+-        return this.getHandle().shouldBurnInDay;
++        return this.getHandle().shouldBurnInDay(); // Velvety - API for living entity to burn in daylight
+     }
+ 
+     @Override
+     public void setShouldBurnInDay(boolean shouldBurnInDay) {
+-        this.getHandle().shouldBurnInDay = shouldBurnInDay;
++        this.getHandle().setShouldBurnInDay(shouldBurnInDay); // Velvety - API for living entity to burn in daylight
+     }
+ 
+     @Override

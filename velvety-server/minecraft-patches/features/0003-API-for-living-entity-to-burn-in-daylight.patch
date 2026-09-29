@@ -1,0 +1,274 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: kacimiamine <contact@kacimiamine.com>
+Date: Tue, 29 Sep 2026 10:27:09 +0100
+Subject: [PATCH] API for living entity to burn in daylight
+
+
+diff --git a/net/minecraft/world/entity/LivingEntity.java b/net/minecraft/world/entity/LivingEntity.java
+index f332edbc4dad82cbdc02a58aa9ec21faf1f2db89..ec48c81905ecc871ca544ad76995ba23549e7105 100644
+--- a/net/minecraft/world/entity/LivingEntity.java
++++ b/net/minecraft/world/entity/LivingEntity.java
+@@ -305,6 +305,7 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
+     public net.kyori.adventure.util.TriState frictionState = net.kyori.adventure.util.TriState.NOT_SET; // Paper - Friction API
+     public int invulnerableDuration = LivingEntity.DAMAGE_COOLDOWN_DURATION; // Paper - configurable invulnerable duration
+     // CraftBukkit end
++    protected boolean shouldBurnInDay = false; public boolean shouldBurnInDay() { return this.shouldBurnInDay; }; public void setShouldBurnInDay(boolean shouldBurnInDay) { this.shouldBurnInDay = shouldBurnInDay; } // Velvety - API for living entity to burn in daylight
+ 
+     protected LivingEntity(final EntityType<? extends LivingEntity> type, final Level level) {
+         super(type, level);
+@@ -819,6 +820,7 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
+         if (this.locatorBarIcon.hasData()) {
+             output.store("locator_bar_icon", Waypoint.Icon.CODEC, this.locatorBarIcon);
+         }
++        output.putBoolean("Velvety.ShouldBurnInDay", this.shouldBurnInDay); // Velvety - API for living entity to burn in daylight
+     }
+ 
+     // Paper start - Extend dropItem API
+@@ -931,6 +933,7 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
+         this.locatorBarIcon = input.read("locator_bar_icon", Waypoint.Icon.CODEC).orElseGet(Waypoint.Icon::new);
+         this.currentImpulseContextResetGraceTime = input.getIntOr("current_impulse_context_reset_grace_time", 0);
+         this.currentImpulseImpactPos = input.read("current_explosion_impact_pos", Vec3.CODEC).orElse(null);
++        this.shouldBurnInDay = input.getBooleanOr("Velvety.ShouldBurnInDay", this.shouldBurnInDay); // Velvety - API for living entity to burn in daylight
+     }
+ 
+     @Override
+@@ -3826,6 +3829,37 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
+         if (this.level() instanceof ServerLevel serverLevel && this.isSensitiveToWater() && this.isInWaterOrRain()) {
+             this.hurtServer(serverLevel, this.damageSources().drown(), 1.0F);
+         }
++
++        // Velvety start - (Moved from Mob) API for living entity to burn in daylight
++        if (this.isAlive() && this.isSunBurnTick() && this.shouldBurnInDay) {
++            EquipmentSlot slot = this.sunProtectionSlot();
++            ItemStack sunBlocker = this.getItemBySlot(slot);
++            if (!sunBlocker.isEmpty()) {
++                if (sunBlocker.isDamageableItem()) {
++                    sunBlocker.hurtAndBreak(this.random.nextInt(2), this, slot);
++                }
++            } else {
++                this.igniteForSeconds(8.0F);
++            }
++        }
++    }
++
++    protected EquipmentSlot sunProtectionSlot() {
++        return EquipmentSlot.HEAD;
++    }
++
++    public boolean isSunBurnTick() {
++        if (!this.level().isClientSide() && this.level().environmentAttributes().getValue(net.minecraft.world.attribute.EnvironmentAttributes.MONSTERS_BURN, this.position())) {
++            float br = this.getLightLevelDependentMagicValue();
++            BlockPos roundedPos = BlockPos.containing(this.getX(), this.getEyeY(), this.getZ());
++            boolean isInNonBurnableBlock = this.isInWaterOrRain() || this.isInPowderSnow || this.wasInPowderSnow;
++            if (br > 0.5F && this.random.nextFloat() * 30.0F < (br - 0.4F) * 2.0F && !isInNonBurnableBlock && this.level().canSeeSky(roundedPos)) {
++                return true;
++            }
++        }
++
++        return false;
++        // Velvety end - (Moved from Mob) API for living entity to burn in daylight
+     }
+ 
+     protected void applyInput() {
+diff --git a/net/minecraft/world/entity/Mob.java b/net/minecraft/world/entity/Mob.java
+index 078054c499e7b29d64543f92c1808b5623e3c8e5..1f7476e4fd08a5bfb34d3df65ef5c8f660868572 100644
+--- a/net/minecraft/world/entity/Mob.java
++++ b/net/minecraft/world/entity/Mob.java
+@@ -533,9 +533,9 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
+     @Override
+     public void aiStep() {
+         super.aiStep();
+-        if (this.is(EntityTypeTags.BURN_IN_DAYLIGHT)) {
++        /*if (this.is(EntityTypeTags.BURN_IN_DAYLIGHT)) { // Velvety start - (Moved to LivingEntity) API for living entity to burn in daylight
+             this.burnUndead();
+-        }
++        }*/ // Velvety end - (Moved to LivingEntity) API for living entity to burn in daylight
+ 
+         ProfilerFiller profiler = Profiler.get();
+         profiler.push("looting");
+@@ -563,7 +563,7 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
+     }
+ 
+     protected EquipmentSlot sunProtectionSlot() {
+-        return EquipmentSlot.HEAD;
++        return super.sunProtectionSlot(); // Velvety - (Moved to LivingEntity) API for living entity to burn in daylight
+     }
+ 
+     private void burnUndead() {
+@@ -581,16 +581,7 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
+     }
+ 
+     public boolean isSunBurnTick() {
+-        if (!this.level().isClientSide() && this.level().environmentAttributes().getValue(EnvironmentAttributes.MONSTERS_BURN, this.position())) {
+-            float br = this.getLightLevelDependentMagicValue();
+-            BlockPos roundedPos = BlockPos.containing(this.getX(), this.getEyeY(), this.getZ());
+-            boolean isInNonBurnableBlock = this.isInWaterOrRain() || this.isInPowderSnow || this.wasInPowderSnow;
+-            if (br > 0.5F && this.random.nextFloat() * 30.0F < (br - 0.4F) * 2.0F && !isInNonBurnableBlock && this.level().canSeeSky(roundedPos)) {
+-                return true;
+-            }
+-        }
+-
+-        return false;
++        return super.isSunBurnTick(); // Velvety - (Moved to LivingEntity) API for living entity to burn in daylight
+     }
+ 
+     protected Vec3i getPickupReach() {
+diff --git a/net/minecraft/world/entity/animal/equine/ZombieHorse.java b/net/minecraft/world/entity/animal/equine/ZombieHorse.java
+index 09c0ec915408ea35b4644d9c7ab20efd90a705c8..e08740a643e539ffd75558aae287cdccdcaaf9f8 100644
+--- a/net/minecraft/world/entity/animal/equine/ZombieHorse.java
++++ b/net/minecraft/world/entity/animal/equine/ZombieHorse.java
+@@ -48,6 +48,7 @@ public class ZombieHorse extends AbstractHorse {
+ 
+     public ZombieHorse(final EntityType<? extends ZombieHorse> type, final Level level) {
+         super(type, level);
++        this.setShouldBurnInDay(true); // Velvety - API for living entity to burn in daylight
+     }
+ 
+     public static AttributeSupplier.Builder createAttributes() {
+diff --git a/net/minecraft/world/entity/animal/nautilus/ZombieNautilus.java b/net/minecraft/world/entity/animal/nautilus/ZombieNautilus.java
+index c9aa882ab43ced1d3d9b84e19feae39d6ed28b78..a9186b4ad010bfed1f238f70eb77065f0b58bc20 100644
+--- a/net/minecraft/world/entity/animal/nautilus/ZombieNautilus.java
++++ b/net/minecraft/world/entity/animal/nautilus/ZombieNautilus.java
+@@ -46,6 +46,7 @@ public class ZombieNautilus extends AbstractNautilus {
+ 
+     public ZombieNautilus(final EntityType<? extends ZombieNautilus> type, final Level level) {
+         super(type, level);
++        this.setShouldBurnInDay(true); // Velvety - API for living entity to burn in daylight
+     }
+ 
+     public static AttributeSupplier.Builder createAttributes() {
+diff --git a/net/minecraft/world/entity/monster/Phantom.java b/net/minecraft/world/entity/monster/Phantom.java
+index 99b5d4aab158e32fb9f940bb66489179527adb76..13685ed9f8e7fe9f453de3e9031aee95abb4a437 100644
+--- a/net/minecraft/world/entity/monster/Phantom.java
++++ b/net/minecraft/world/entity/monster/Phantom.java
+@@ -51,7 +51,7 @@ public class Phantom extends Mob implements Enemy {
+     private Phantom.AttackPhase attackPhase = Phantom.AttackPhase.CIRCLE;
+     // Paper start
+     public java.util.@Nullable UUID spawningEntity;
+-    public boolean shouldBurnInDay = true;
++    //public boolean shouldBurnInDay = true; // Velvety - API for living entity to burn in daylight
+     // Paper end
+ 
+     public Phantom(final EntityType<? extends Phantom> type, final Level level) {
+@@ -59,6 +59,7 @@ public class Phantom extends Mob implements Enemy {
+         this.xpReward = 5;
+         this.moveControl = new Phantom.PhantomMoveControl<>(this);
+         this.lookControl = new Phantom.PhantomLookControl(this);
++        this.setShouldBurnInDay(true); // Velvety - API for living entity to burn in daylight
+     }
+ 
+     @Override
+@@ -170,7 +171,7 @@ public class Phantom extends Mob implements Enemy {
+         this.setPhantomSize(input.getIntOr("size", 0));
+         // Paper start
+         this.spawningEntity = input.read("Paper.SpawningEntity", net.minecraft.core.UUIDUtil.CODEC).orElse(null);
+-        this.shouldBurnInDay = input.getBooleanOr("Paper.ShouldBurnInDay", true);
++        //this.shouldBurnInDay = input.getBooleanOr("Paper.ShouldBurnInDay", true); // Velvety - API for living entity to burn in daylight
+         // Paper end
+     }
+ 
+@@ -181,7 +182,7 @@ public class Phantom extends Mob implements Enemy {
+         output.putInt("size", this.getPhantomSize());
+         // Paper start
+         output.storeNullable("Paper.SpawningEntity", net.minecraft.core.UUIDUtil.CODEC, this.spawningEntity);
+-        output.putBoolean("Paper.ShouldBurnInDay", this.shouldBurnInDay);
++        //output.putBoolean("Paper.ShouldBurnInDay", this.shouldBurnInDay); // Velvety - API for living entity to burn in daylight
+         // Paper end
+     }
+ 
+diff --git a/net/minecraft/world/entity/monster/skeleton/AbstractSkeleton.java b/net/minecraft/world/entity/monster/skeleton/AbstractSkeleton.java
+index b195512c5a542bd1f505393d1f7c1b4ddb0119af..376da9129568a915e05e9117d042e1730676c3e3 100644
+--- a/net/minecraft/world/entity/monster/skeleton/AbstractSkeleton.java
++++ b/net/minecraft/world/entity/monster/skeleton/AbstractSkeleton.java
+@@ -66,11 +66,12 @@ public abstract class AbstractSkeleton extends Monster implements RangedAttackMo
+             AbstractSkeleton.this.setAggressive(true);
+         }
+     };
+-    private boolean shouldBurnInDay = true; // Paper - shouldBurnInDay API
++    //private boolean shouldBurnInDay = true; // Paper - shouldBurnInDay API // Velvety - API for living entity to burn in daylight
+ 
+     protected AbstractSkeleton(final EntityType<? extends AbstractSkeleton> type, final Level level) {
+         super(type, level);
+         this.reassessWeaponGoal();
++        this.setShouldBurnInDay(true); // Velvety - API for living entity to burn in daylight
+     }
+ 
+     @Override
+@@ -221,7 +222,7 @@ public abstract class AbstractSkeleton extends Monster implements RangedAttackMo
+     protected void readAdditionalSaveData(final ValueInput input) {
+         super.readAdditionalSaveData(input);
+         this.reassessWeaponGoal();
+-        this.shouldBurnInDay = input.getBooleanOr("Paper.ShouldBurnInDay", true); // Paper - shouldBurnInDay API
++        //this.shouldBurnInDay = input.getBooleanOr("Paper.ShouldBurnInDay", true); // Paper - shouldBurnInDay API // Velvety - API for living entity to burn in daylight
+     }
+ 
+     // Paper start - silent equipping
+@@ -247,7 +248,7 @@ public abstract class AbstractSkeleton extends Monster implements RangedAttackMo
+     @Override
+     protected void addAdditionalSaveData(final net.minecraft.world.level.storage.ValueOutput output) {
+         super.addAdditionalSaveData(output);
+-        output.putBoolean("Paper.ShouldBurnInDay", this.shouldBurnInDay);
++        //output.putBoolean("Paper.ShouldBurnInDay", this.shouldBurnInDay); // Velvety - API for living entity to burn in daylight
+     }
+     // Paper end - shouldBurnInDay API
+ }
+diff --git a/net/minecraft/world/entity/monster/skeleton/Parched.java b/net/minecraft/world/entity/monster/skeleton/Parched.java
+index 986caff5325830c6d3eb0f6927c3294ae8b9ebe0..605d94ae589583a8613c52e18f0a9bd282ca7125 100644
+--- a/net/minecraft/world/entity/monster/skeleton/Parched.java
++++ b/net/minecraft/world/entity/monster/skeleton/Parched.java
+@@ -17,6 +17,7 @@ import org.jspecify.annotations.Nullable;
+ public class Parched extends AbstractSkeleton {
+     public Parched(final EntityType<? extends AbstractSkeleton> type, final Level level) {
+         super(type, level);
++        this.setShouldBurnInDay(false); // Velvety - API for living entity to burn in daylight
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/entity/monster/zombie/Husk.java b/net/minecraft/world/entity/monster/zombie/Husk.java
+index 12a0b90c16bf317c6d92843e7fca1129b74bb05c..53e550e43ed001b94dc9c8c696ba2104e95afdfd 100644
+--- a/net/minecraft/world/entity/monster/zombie/Husk.java
++++ b/net/minecraft/world/entity/monster/zombie/Husk.java
+@@ -36,6 +36,7 @@ public class Husk extends Zombie {
+ 
+     public Husk(final EntityType<? extends Husk> type, final Level level) {
+         super(type, level);
++        this.setShouldBurnInDay(false); // Velvety - API for living entity to burn in daylight
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/entity/monster/zombie/Zombie.java b/net/minecraft/world/entity/monster/zombie/Zombie.java
+index f9b38b878bc093a0e31a6431f98c958da0bd0175..362f4e11c5a04247862fc395acf871ce6a932d2d 100644
+--- a/net/minecraft/world/entity/monster/zombie/Zombie.java
++++ b/net/minecraft/world/entity/monster/zombie/Zombie.java
+@@ -113,11 +113,12 @@ public class Zombie extends Monster {
+             serverLevel.getCurrentDifficultyAt(converted.blockPosition()).getSpecialMultiplier(), EntitySpawnReason.CONVERSION
+         )
+     ).setEventReasons(org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.DROWNED, org.bukkit.event.entity.EntityTransformEvent.TransformReason.DROWNED); // Paper - Spawn reason for drownned
+-    private boolean shouldBurnInDay = true; // Paper - Add more Zombie API
++    //private boolean shouldBurnInDay = true; // Paper - Add more Zombie API // Velvety - API for living entity to burn in daylight
+ 
+     public Zombie(final EntityType<? extends Zombie> type, final Level level) {
+         super(type, level);
+         this.breakDoorGoal = new BreakDoorGoal(this, com.google.common.base.Predicates.in(level.paperConfig().entities.behavior.doorBreakingDifficulty.getOrDefault(type, level.paperConfig().entities.behavior.doorBreakingDifficulty.get(EntityTypes.ZOMBIE)))); // Paper - Configurable door breaking difficulty
++        this.setShouldBurnInDay(true); // Velvety - API for living entity to burn in daylight
+     }
+ 
+     public Zombie(final Level level) {
+@@ -413,7 +414,7 @@ public class Zombie extends Monster {
+         output.putBoolean("IsBaby", this.isBaby());
+         output.putBoolean("CanBreakDoors", this.canBreakDoors());
+         this.drowningTracker.addAdditionalSaveData(output);
+-        output.putBoolean("Paper.ShouldBurnInDay", this.shouldBurnInDay); // Paper - Add more Zombie API
++        //output.putBoolean("Paper.ShouldBurnInDay", this.shouldBurnInDay); // Paper - Add more Zombie API // Velvety - API for living entity to burn in daylight
+     }
+ 
+     @Override
+@@ -422,7 +423,7 @@ public class Zombie extends Monster {
+         this.setBaby(input.getBooleanOr("IsBaby", false));
+         this.setCanBreakDoors(input.getBooleanOr("CanBreakDoors", false));
+         this.drowningTracker.readAdditionalSaveData(input);
+-        this.shouldBurnInDay = input.getBooleanOr("Paper.ShouldBurnInDay", true); // Paper - Add more Zombie API
++        //this.shouldBurnInDay = input.getBooleanOr("Paper.ShouldBurnInDay", true); // Paper - Add more Zombie API // Velvety - API for living entity to burn in daylight
+     }
+ 
+     @Override

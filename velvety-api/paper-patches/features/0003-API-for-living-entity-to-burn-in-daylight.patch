@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: kacimiamine <contact@kacimiamine.com>
+Date: Tue, 29 Sep 2026 10:27:09 +0100
+Subject: [PATCH] API for living entity to burn in daylight
+
+
+diff --git a/src/main/java/org/bukkit/entity/LivingEntity.java b/src/main/java/org/bukkit/entity/LivingEntity.java
+index ab18c028fd800a7b2da91e5c32a4547beea1d92b..c2c054014a7449f1cf908129b2544c583af1cdfe 100644
+--- a/src/main/java/org/bukkit/entity/LivingEntity.java
++++ b/src/main/java/org/bukkit/entity/LivingEntity.java
+@@ -1559,4 +1559,20 @@ public interface LivingEntity extends Attributable, Damageable, ProjectileSource
+      */
+     @Nullable
+     Color getWaypointColor();
++
++    // Velvety start - API for living entity to burn in daylight
++    /**
++     * Check if this living entity will burn in the sunlight
++     *
++     * @return True if living entity will burn in sunlight
++     */
++    boolean shouldBurnInDay();
++
++    /**
++     * Set if this living entity should burn in the sunlight
++     *
++     * @param shouldBurnInDay True to burn in sunlight
++     */
++    void setShouldBurnInDay(boolean shouldBurnInDay);
++    // Velvety end - API for living entity to burn in daylight
+ }
