@@ -1,0 +1,45 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: kacimiamine <contact@kacimiamine.com>
+Date: Tue, 29 Sep 2026 12:18:54 +0100
+Subject: [PATCH] Chests can always open
+
+
+diff --git a/net/minecraft/world/level/block/ChestBlock.java b/net/minecraft/world/level/block/ChestBlock.java
+index 4b3f5c92f3caf6d68f60b906d1f7eb552698ef05..9c6cef696fa5004d2180ae91f000c6f1aec00000 100644
+--- a/net/minecraft/world/level/block/ChestBlock.java
++++ b/net/minecraft/world/level/block/ChestBlock.java
+@@ -330,7 +330,7 @@ public class ChestBlock extends AbstractChestBlock<ChestBlockEntity> implements
+     }
+ 
+     public static boolean isChestBlockedAt(final LevelAccessor level, final BlockPos pos) {
+-        return isBlockedChestByBlock(level, pos) || isCatSittingOnChest(level, pos);
++        return !level.getMinecraftWorld().velvetyConfig.chestCanAlwaysOpen && (isBlockedChestByBlock(level, pos) || isCatSittingOnChest(level, pos)); // Velvety - Chests can always open
+     }
+ 
+     private static boolean isBlockedChestByBlock(final BlockGetter level, final BlockPos pos) {
+diff --git a/net/minecraft/world/level/block/EnderChestBlock.java b/net/minecraft/world/level/block/EnderChestBlock.java
+index 34e6bb7d246f065698def3b1f7a0d237f304f2aa..c50bf64d1da5b37616c1ec34a64d4f96072de6aa 100644
+--- a/net/minecraft/world/level/block/EnderChestBlock.java
++++ b/net/minecraft/world/level/block/EnderChestBlock.java
+@@ -76,7 +76,7 @@ public class EnderChestBlock extends AbstractChestBlock<EnderChestBlockEntity> i
+         PlayerEnderChestContainer container = player.getEnderChestInventory();
+         if (container != null && level.getBlockEntity(pos) instanceof EnderChestBlockEntity enderChest) {
+             BlockPos above = pos.above();
+-            if (level.getBlockState(above).isRedstoneConductor(level, above)) { // Paper - diff on change; make sure that EnderChest#isBlocked uses the same logic
++            if (level.getBlockState(above).isRedstoneConductor(level, above) && !level.velvetyConfig.enderChestCanAlwaysOpen) { // Paper - diff on change; make sure that EnderChest#isBlocked uses the same logic // Velvety - Chests can always open
+                 return InteractionResult.SUCCESS;
+             }
+ 
+diff --git a/net/minecraft/world/level/block/ShulkerBoxBlock.java b/net/minecraft/world/level/block/ShulkerBoxBlock.java
+index 9e10485bfe0dcb0225ae4911bbedd5ae24d79c4d..3cf3612446f38f25c73e53fdbe005f82f653d260 100644
+--- a/net/minecraft/world/level/block/ShulkerBoxBlock.java
++++ b/net/minecraft/world/level/block/ShulkerBoxBlock.java
+@@ -81,7 +81,7 @@ public class ShulkerBoxBlock extends BaseEntityBlock {
+         }
+ 
+         AABB lidOpenBoundingBox = Shulker.getProgressDeltaAabb(1.0F, state.getValue(FACING), 0.0F, 0.5F, Vec3.atBottomCenterOf(pos)).deflate(1.0E-6);
+-        return level.noCollision(lidOpenBoundingBox);
++        return level.noCollision(lidOpenBoundingBox) || level.velvetyConfig.shulkerBoxCanAlwaysOpen; // Velvety - Chests can always open
+     }
+ 
+     @Override

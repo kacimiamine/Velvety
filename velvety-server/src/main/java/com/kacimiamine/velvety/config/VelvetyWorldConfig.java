@@ -62,9 +62,15 @@ public class VelvetyWorldConfig {
         return VelvetyConfig.config.get("world-settings." + this.worldName + "." + path, VelvetyConfig.config.get("world-settings.default." + path));
     }
 
+    public boolean chestCanAlwaysOpen = false;
+    public boolean enderChestCanAlwaysOpen = false;
     public boolean leavesInstantDecay = false;
-    private void leavesSettings() {
+    public boolean shulkerBoxCanAlwaysOpen = false;
+    private void blockSettings() {
+        chestCanAlwaysOpen = getBoolean("blocks.chest.can-always-open", chestCanAlwaysOpen);
         leavesInstantDecay = getBoolean("blocks.leaves.instant-decay", leavesInstantDecay);
+        enderChestCanAlwaysOpen = getBoolean("blocks.ender_chest.can-always-open", enderChestCanAlwaysOpen);
+        shulkerBoxCanAlwaysOpen = getBoolean("blocks.shulker_box.can-always-open", shulkerBoxCanAlwaysOpen);
     }
 
     public boolean boggedShouldBurnInDay = true;
