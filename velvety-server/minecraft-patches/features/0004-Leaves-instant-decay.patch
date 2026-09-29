@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: kacimiamine <contact@kacimiamine.com>
+Date: Tue, 29 Sep 2026 10:45:30 +0100
+Subject: [PATCH] Leaves instant decay
+
+
+diff --git a/net/minecraft/world/level/block/LeavesBlock.java b/net/minecraft/world/level/block/LeavesBlock.java
+index d0dba204ed4f709470d097ddf6448e432e5530bc..6f1ac9baacc4d5b2eb127b6f73b4b12ea2661c6d 100644
+--- a/net/minecraft/world/level/block/LeavesBlock.java
++++ b/net/minecraft/world/level/block/LeavesBlock.java
+@@ -62,6 +62,12 @@ public class LeavesBlock extends Block implements SimpleWaterloggedBlock {
+ 
+     @Override
+     protected void randomTick(final BlockState state, final ServerLevel level, final BlockPos pos, final RandomSource random) {
++        // Velvety start - Leaves instant decay
++        if (!level.velvetyConfig.leavesInstantDecay) this.decay(state, level, pos);
++    }
++
++    private void decay(final BlockState state, final ServerLevel level, final BlockPos pos) {
++        // Velvety end - Leaves instant decay
+         if (this.decaying(state)) {
+             // CraftBukkit start
+             org.bukkit.event.block.LeavesDecayEvent event = new org.bukkit.event.block.LeavesDecayEvent(org.bukkit.craftbukkit.block.CraftBlock.at(level, pos));
+@@ -83,6 +89,7 @@ public class LeavesBlock extends Block implements SimpleWaterloggedBlock {
+     @Override
+     protected void tick(final BlockState state, final ServerLevel level, final BlockPos pos, final RandomSource random) {
+         level.setBlockAndUpdate(pos, updateDistance(state, level, pos));
++        if (level.velvetyConfig.leavesInstantDecay) this.decay(state, level, pos); // Velvety - Leaves instant decay
+     }
+ 
+     @Override

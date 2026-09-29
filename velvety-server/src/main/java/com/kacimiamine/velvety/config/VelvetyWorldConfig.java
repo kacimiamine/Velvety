@@ -61,4 +61,9 @@ public class VelvetyWorldConfig {
         VelvetyConfig.config.addDefault("world-settings.default." + path, def);
         return VelvetyConfig.config.get("world-settings." + this.worldName + "." + path, VelvetyConfig.config.get("world-settings.default." + path));
     }
+
+    public boolean leavesInstantDecay = false;
+    private void leavesSettings() {
+        leavesInstantDecay = getBoolean("blocks.leaves.instant-decay", leavesInstantDecay);
+    }
 }
