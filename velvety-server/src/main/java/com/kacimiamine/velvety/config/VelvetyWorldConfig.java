@@ -73,6 +73,13 @@ public class VelvetyWorldConfig {
         shulkerBoxCanAlwaysOpen = getBoolean("blocks.shulker_box.can-always-open", shulkerBoxCanAlwaysOpen);
     }
 
+    public boolean oneHitKillWhenCreative = false;
+    public boolean oneHitKillWhenCreativeUsePermission = true;
+    private void oneHitKillWhenCreativeSettings() {
+        oneHitKillWhenCreative = getBoolean("gameplay.player.one-hit-kill-when-creative.enabled", oneHitKillWhenCreative);
+        oneHitKillWhenCreativeUsePermission = getBoolean("gameplay.player.one-hit-kill-when-creative.use-permission", oneHitKillWhenCreativeUsePermission);
+    }
+
     public boolean boggedShouldBurnInDay = true;
     private void boggedSettings() {
         boggedShouldBurnInDay = getBoolean("mobs.bogged.should-burn-in-day", boggedShouldBurnInDay);

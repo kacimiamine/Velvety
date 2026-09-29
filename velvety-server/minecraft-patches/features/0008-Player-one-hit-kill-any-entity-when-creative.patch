@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: kacimiamine <contact@kacimiamine.com>
+Date: Tue, 29 Sep 2026 13:47:41 +0100
+Subject: [PATCH] Player one hit kill any entity when creative
+
+
+diff --git a/net/minecraft/world/entity/LivingEntity.java b/net/minecraft/world/entity/LivingEntity.java
+index ec48c81905ecc871ca544ad76995ba23549e7105..69e4ac500a084f44911941e8e7f5f62407867b56 100644
+--- a/net/minecraft/world/entity/LivingEntity.java
++++ b/net/minecraft/world/entity/LivingEntity.java
+@@ -1448,6 +1448,14 @@ public abstract class LivingEntity extends Entity implements Attackable, Waypoin
+             this.stopSleeping();
+         }
+ 
++        // Velvety start - Player one hit kill any entity when creative
++        if (level.velvetyConfig.oneHitKillWhenCreative && source.getEntity() instanceof Player player) {
++            if (!level.velvetyConfig.oneHitKillWhenCreativeUsePermission || player.getBukkitEntity().hasPermission("velvety.one-hit-kill-when-creative")) {
++                damage = Float.MAX_VALUE;
++            }
++        }
++        // Velvety end - Player one hit kill any entity when creative
++
+         this.noActionTime = 0;
+         if (damage < 0.0F) {
+             damage = 0.0F;
