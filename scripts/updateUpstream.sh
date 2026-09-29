@@ -10,9 +10,7 @@ function getCommits() {
 }
 
 function getDiff() {
-    if ! git diff --cached --quiet -- gradle.properties; then
-        echo "gradle.properties already staged"
-    else
+    if git diff --cached --quiet -- gradle.properties; then
         git add gradle.properties
     fi
 

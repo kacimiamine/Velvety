@@ -98,13 +98,13 @@
  }
  
 -fill {
-+/*fill { // Velvety end
++/*fill { // Velvety start
      project("paper")
      versionFamily(paperweight.minecraftVersion.map { it.split(".", "-").takeWhile { part -> part.toIntOrNull() != null }.take(2).joinToString(".") })
      version(paperweight.minecraftVersion)
-@@ -349,4 +_,4 @@
- 
- tasks.named("publishToFill") {
-     notCompatibleWithConfigurationCache("Holds an HttpClient in a task field")
+@@ -345,4 +_,4 @@
+             }
+         }
+     }
 -}
 +}*/ // Velvety end
