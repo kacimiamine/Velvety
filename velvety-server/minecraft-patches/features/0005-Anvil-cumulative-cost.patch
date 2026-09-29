@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: kacimiamine <contact@kacimiamine.com>
+Date: Tue, 29 Sep 2026 10:50:33 +0100
+Subject: [PATCH] Anvil cumulative cost
+
+
+diff --git a/net/minecraft/world/inventory/AnvilMenu.java b/net/minecraft/world/inventory/AnvilMenu.java
+index a577225f59bb562b860cb90db72b4d658a69956f..23431de3bbd0f4b8f5ae5f21002bf63a72ba0926 100644
+--- a/net/minecraft/world/inventory/AnvilMenu.java
++++ b/net/minecraft/world/inventory/AnvilMenu.java
+@@ -295,7 +295,7 @@ public class AnvilMenu extends ItemCombinerMenu {
+     }
+ 
+     public static int calculateIncreasedRepairCost(final int baseCost) {
+-        return (int)Math.min(baseCost * 2L + 1L, 2147483647L);
++        return com.kacimiamine.velvety.config.VelvetyConfig.anvilCumulativeCost ? (int)Math.min(baseCost * 2L + 1L, 2147483647L) : 0; // Velvety - Anvil cumulative cost
+     }
+ 
+     public boolean setItemName(final String name) {

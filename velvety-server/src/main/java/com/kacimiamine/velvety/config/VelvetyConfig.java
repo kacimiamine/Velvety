@@ -105,4 +105,9 @@ public class VelvetyConfig {
         config.addDefault(path, def);
         return config.getDouble(path, config.getDouble(path));
     }
+
+    public static boolean anvilCumulativeCost = true;
+    private static void anvilSettings() {
+        anvilCumulativeCost = getBoolean("settings.gameplay.anvil.cumulative-cost", anvilCumulativeCost);
+    }
 }
