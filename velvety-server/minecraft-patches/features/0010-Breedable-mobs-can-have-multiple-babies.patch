@@ -1,0 +1,625 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: kacimiamine <contact@kacimiamine.com>
+Date: Thu, 1 Oct 2026 13:47:48 +0100
+Subject: [PATCH] Breedable mobs can have multiple babies
+
+
+diff --git a/net/minecraft/world/entity/Mob.java b/net/minecraft/world/entity/Mob.java
+index 1f7476e4fd08a5bfb34d3df65ef5c8f660868572..685b57e1b7639011814250bc28449dcd0451d90f 100644
+--- a/net/minecraft/world/entity/Mob.java
++++ b/net/minecraft/world/entity/Mob.java
+@@ -156,6 +156,15 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
+     private int homeRadius = -1;
+     public boolean aware = true; // CraftBukkit
+     public net.kyori.adventure.util.TriState despawnInPeacefulOverride = net.kyori.adventure.util.TriState.NOT_SET; // Paper - allow changing despawnInPeaceful
++    // Velvety start - Breedable mobs can have multiple babies
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() { return new com.kacimiamine.velvety.entity.mob.Breeding(0.0D, 1, 1); }
++    protected int getBreedingMinOffspring() { return breeding().min(); }
++    protected int getBreedingMaxOffspring() { return breeding().max(); }
++    protected boolean willHaveAnotherBaby() {
++        double chance = breeding().chance();
++        return (chance > 0.0D) && (chance >= random.nextDouble());
++    }
++    // Velvety end - Breedable mobs can have multiple babies
+ 
+     protected Mob(final EntityType<? extends Mob> type, final Level level) {
+         super(type, level);
+diff --git a/net/minecraft/world/entity/ai/behavior/VillagerMakeLove.java b/net/minecraft/world/entity/ai/behavior/VillagerMakeLove.java
+index 979b537bb459898a501af86280fa313ac58510b2..61eed4d2a30e9eec4e0e5e39d2da9674fa0bccb0 100644
+--- a/net/minecraft/world/entity/ai/behavior/VillagerMakeLove.java
++++ b/net/minecraft/world/entity/ai/behavior/VillagerMakeLove.java
+@@ -107,6 +107,13 @@ public class VillagerMakeLove extends Behavior<Villager> {
+     }
+ 
+     private Optional<Villager> breed(final ServerLevel level, final Villager source, final Villager target) {
++        // Velvety start - Breedable mobs can have multiple babies
++        return this.breed(level, source, target, 0);
++    }
++
++    private Optional<Villager> breed(final ServerLevel level, final Villager source, final Villager target, int currentBabyCount) {
++        if ((currentBabyCount >= source.getBreedingMinOffspring()) && (!source.willHaveAnotherBaby() || currentBabyCount >= source.getBreedingMaxOffspring())) return Optional.empty();
++        // Velvety end - Breedable mobs can have multiple babies
+         Villager child = source.getBreedOffspring(level, target);
+         if (child == null) {
+             return Optional.empty();
+@@ -124,6 +131,7 @@ public class VillagerMakeLove extends Behavior<Villager> {
+         level.addFreshEntityWithPassengers(child, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.BREEDING);
+         // CraftBukkit end - call EntityBreedEvent
+         level.broadcastEntityEvent(child, EntityEvent.LOVE_HEARTS);
++        this.breed(level, source, target, currentBabyCount + 1); // Velvety - Breedable mobs can have multiple babies
+         return Optional.of(child);
+     }
+ 
+diff --git a/net/minecraft/world/entity/animal/Animal.java b/net/minecraft/world/entity/animal/Animal.java
+index 0814912f7b9e6ab1f8037006a2224b57e1ef241b..8e5ffa78ff1b48418a196bfa1fe61b2933199df1 100644
+--- a/net/minecraft/world/entity/animal/Animal.java
++++ b/net/minecraft/world/entity/animal/Animal.java
+@@ -225,6 +225,13 @@ public abstract class Animal extends AgeableMob {
+     }
+ 
+     public void spawnChildFromBreeding(final ServerLevel level, final Animal partner) {
++        // Velvety start - Breedable mobs can have multiple babies
++        this.spawnChildFromBreeding(level, partner, 0);
++    }
++
++    public void spawnChildFromBreeding(final ServerLevel level, final Animal partner, int currentBabyCount) {
++        if ((currentBabyCount >= getBreedingMinOffspring()) && (!willHaveAnotherBaby() || currentBabyCount >= getBreedingMaxOffspring())) return;
++        // Velvety end - Breedable mobs can have multiple babies
+         AgeableMob offspring = this.getBreedOffspring(level, partner);
+         if (offspring != null) {
+             offspring.setBaby(true);
+@@ -243,6 +250,7 @@ public abstract class Animal extends AgeableMob {
+             this.finalizeSpawnChildFromBreeding(level, partner, offspring, experience);
+             level.addFreshEntityWithPassengers(offspring, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.BREEDING);
+             // CraftBukkit end - Call EntityBreedEvent
++            this.spawnChildFromBreeding(level, partner, currentBabyCount + 1); // Velvety - Breedable mobs can have multiple babies
+         }
+     }
+ 
+diff --git a/net/minecraft/world/entity/animal/armadillo/Armadillo.java b/net/minecraft/world/entity/animal/armadillo/Armadillo.java
+index 41fd33b6d70eacd987862915b10e9b559867f44d..7a5126343260a68ee1f322b1523816317888a2bc 100644
+--- a/net/minecraft/world/entity/animal/armadillo/Armadillo.java
++++ b/net/minecraft/world/entity/animal/armadillo/Armadillo.java
+@@ -84,6 +84,14 @@ public class Armadillo extends Animal {
+         this.scuteTime = this.pickNextScuteDropTime();
+     }
+ 
++    // Velvety start - Breedable mobs can have multiple babies
++    @Override
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() {
++        com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig = this.level().velvetyConfig;
++        return new com.kacimiamine.velvety.entity.mob.Breeding(velvetyConfig.armadilloBreedingChance, velvetyConfig.armadilloBreedingMinOffspring, velvetyConfig.armadilloBreedingMaxOffspring);
++    }
++    // Velvety end - Breedable mobs can have multiple babies
++
+     @Override
+     public @Nullable AgeableMob getBreedOffspring(final ServerLevel level, final AgeableMob partner) {
+         return EntityTypes.ARMADILLO.create(level, EntitySpawnReason.BREEDING);
+diff --git a/net/minecraft/world/entity/animal/axolotl/Axolotl.java b/net/minecraft/world/entity/animal/axolotl/Axolotl.java
+index fa774ac8f3eea281c9b684c76dd12d4e66d3ee24..9218bc19b3f6521c6a789165e14143ba6e13dd7a 100644
+--- a/net/minecraft/world/entity/animal/axolotl/Axolotl.java
++++ b/net/minecraft/world/entity/animal/axolotl/Axolotl.java
+@@ -122,6 +122,14 @@ public class Axolotl extends Animal implements Bucketable {
+         this.lookControl = new Axolotl.AxolotlLookControl(this, 20);
+     }
+ 
++    // Velvety start - Breedable mobs can have multiple babies
++    @Override
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() {
++        com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig = this.level().velvetyConfig;
++        return new com.kacimiamine.velvety.entity.mob.Breeding(velvetyConfig.axolotlBreedingChance, velvetyConfig.axolotlBreedingMinOffspring, velvetyConfig.axolotlBreedingMaxOffspring);
++    }
++    // Velvety end - Breedable mobs can have multiple babies
++
+     @Override
+     public float getWalkTargetValue(final BlockPos pos, final LevelReader level) {
+         return 0.0F;
+diff --git a/net/minecraft/world/entity/animal/bee/Bee.java b/net/minecraft/world/entity/animal/bee/Bee.java
+index fed07676ae1d7d8ce240e8ec8f0a2582ef45eea2..1059e5c038a1201b79d60ac540b700aa64a5f4fe 100644
+--- a/net/minecraft/world/entity/animal/bee/Bee.java
++++ b/net/minecraft/world/entity/animal/bee/Bee.java
+@@ -176,6 +176,14 @@ public class Bee extends Animal implements NeutralMob {
+         this.setPathfindingMalus(PathType.FENCE, -1.0F);
+     }
+ 
++    // Velvety start - Breedable mobs can have multiple babies
++    @Override
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() {
++        com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig = this.level().velvetyConfig;
++        return new com.kacimiamine.velvety.entity.mob.Breeding(velvetyConfig.beeBreedingChance, velvetyConfig.beeBreedingMinOffspring, velvetyConfig.beeBreedingMaxOffspring);
++    }
++    // Velvety end - Breedable mobs can have multiple babies
++
+     @Override
+     protected void defineSynchedData(final SynchedEntityData.Builder entityData) {
+         super.defineSynchedData(entityData);
+diff --git a/net/minecraft/world/entity/animal/camel/Camel.java b/net/minecraft/world/entity/animal/camel/Camel.java
+index 5ed0ad722a3dfb84d5aabd9888bce24e8e1847c3..e83f4c5ed9e607b3cbf70a1ee94335ba8c2b94de 100644
+--- a/net/minecraft/world/entity/animal/camel/Camel.java
++++ b/net/minecraft/world/entity/animal/camel/Camel.java
+@@ -100,6 +100,14 @@ public class Camel extends AbstractHorse {
+         navigation.setCanWalkOverFences(true);
+     }
+ 
++    // Velvety start - Breedable mobs can have multiple babies
++    @Override
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() {
++        com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig = this.level().velvetyConfig;
++        return new com.kacimiamine.velvety.entity.mob.Breeding(velvetyConfig.camelBreedingChance, velvetyConfig.camelBreedingMinOffspring, velvetyConfig.camelBreedingMaxOffspring);
++    }
++    // Velvety end - Breedable mobs can have multiple babies
++
+     @Override
+     protected void addAdditionalSaveData(final ValueOutput output) {
+         super.addAdditionalSaveData(output);
+diff --git a/net/minecraft/world/entity/animal/chicken/Chicken.java b/net/minecraft/world/entity/animal/chicken/Chicken.java
+index c646ab45fbfb4a5fd29b8ad4914cf115d2f674b5..bad804a173f2c867c29c278b70b00b00c13505cd 100644
+--- a/net/minecraft/world/entity/animal/chicken/Chicken.java
++++ b/net/minecraft/world/entity/animal/chicken/Chicken.java
+@@ -81,6 +81,14 @@ public class Chicken extends Animal {
+         this.setPathfindingMalus(PathType.WATER, 0.0F);
+     }
+ 
++    // Velvety start - Breedable mobs can have multiple babies
++    @Override
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() {
++        com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig = this.level().velvetyConfig;
++        return new com.kacimiamine.velvety.entity.mob.Breeding(velvetyConfig.chickenBreedingChance, velvetyConfig.chickenBreedingMinOffspring, velvetyConfig.chickenBreedingMaxOffspring);
++    }
++    // Velvety end - Breedable mobs can have multiple babies
++
+     @Override
+     protected void registerGoals() {
+         this.goalSelector.addGoal(0, new FloatGoal(this));
+diff --git a/net/minecraft/world/entity/animal/cow/Cow.java b/net/minecraft/world/entity/animal/cow/Cow.java
+index f6d3a006218fee82134a40b7a41953b5738a382e..4d3b6eab1858ea50fce2897cd7393d08e158e7c4 100644
+--- a/net/minecraft/world/entity/animal/cow/Cow.java
++++ b/net/minecraft/world/entity/animal/cow/Cow.java
+@@ -42,6 +42,14 @@ public class Cow extends AbstractCow {
+         super(type, level);
+     }
+ 
++    // Velvety start - Breedable mobs can have multiple babies
++    @Override
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() {
++        com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig = this.level().velvetyConfig;
++        return new com.kacimiamine.velvety.entity.mob.Breeding(velvetyConfig.cowBreedingChance, velvetyConfig.cowBreedingMinOffspring, velvetyConfig.cowBreedingMaxOffspring);
++    }
++    // Velvety end - Breedable mobs can have multiple babies
++
+     @Override
+     protected void defineSynchedData(final SynchedEntityData.Builder entityData) {
+         super.defineSynchedData(entityData);
+diff --git a/net/minecraft/world/entity/animal/cow/MushroomCow.java b/net/minecraft/world/entity/animal/cow/MushroomCow.java
+index 75f6d0405349161a1ba15e853d8c01c814c0b774..6e75729525448f8a843dbf3304f7f12844e0e488 100644
+--- a/net/minecraft/world/entity/animal/cow/MushroomCow.java
++++ b/net/minecraft/world/entity/animal/cow/MushroomCow.java
+@@ -70,6 +70,14 @@ public class MushroomCow extends AbstractCow implements Shearable {
+         super(type, level);
+     }
+ 
++    // Velvety start - Breedable mobs can have multiple babies
++    @Override
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() {
++        com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig = this.level().velvetyConfig;
++        return new com.kacimiamine.velvety.entity.mob.Breeding(velvetyConfig.mooshroomBreedingChance, velvetyConfig.mooshroomBreedingMinOffspring, velvetyConfig.mooshroomBreedingMaxOffspring);
++    }
++    // Velvety end - Breedable mobs can have multiple babies
++
+     @Override
+     public float getWalkTargetValue(final BlockPos pos, final LevelReader level) {
+         return level.getBlockState(pos.below()).is(Blocks.MYCELIUM) ? 10.0F : level.getPathfindingCostFromLightLevels(pos);
+diff --git a/net/minecraft/world/entity/animal/equine/Donkey.java b/net/minecraft/world/entity/animal/equine/Donkey.java
+index 1403a4f893d32a51c9c8421e869214a9813d1e79..d57fa24b51447074640e94321421444a4200719b 100644
+--- a/net/minecraft/world/entity/animal/equine/Donkey.java
++++ b/net/minecraft/world/entity/animal/equine/Donkey.java
+@@ -17,6 +17,14 @@ public class Donkey extends AbstractChestedHorse {
+         super(type, level);
+     }
+ 
++    // Velvety start - Breedable mobs can have multiple babies
++    @Override
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() {
++        com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig = this.level().velvetyConfig;
++        return new com.kacimiamine.velvety.entity.mob.Breeding(velvetyConfig.donkeyBreedingChance, velvetyConfig.donkeyBreedingMinOffspring, velvetyConfig.donkeyBreedingMaxOffspring);
++    }
++    // Velvety end - Breedable mobs can have multiple babies
++
+     @Override
+     public SoundEvent getAmbientSound() {
+         return SoundEvents.DONKEY_AMBIENT;
+diff --git a/net/minecraft/world/entity/animal/equine/Horse.java b/net/minecraft/world/entity/animal/equine/Horse.java
+index 013ca7a41ac31005f3b60af4ab89efae37144573..b8ace3244480834088b39039005717b873bb4cd7 100644
+--- a/net/minecraft/world/entity/animal/equine/Horse.java
++++ b/net/minecraft/world/entity/animal/equine/Horse.java
+@@ -49,6 +49,14 @@ public class Horse extends AbstractHorse {
+         super(type, level);
+     }
+ 
++    // Velvety start - Breedable mobs can have multiple babies
++    @Override
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() {
++        com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig = this.level().velvetyConfig;
++        return new com.kacimiamine.velvety.entity.mob.Breeding(velvetyConfig.horseBreedingChance, velvetyConfig.horseBreedingMinOffspring, velvetyConfig.horseBreedingMaxOffspring);
++    }
++    // Velvety end - Breedable mobs can have multiple babies
++
+     @Override
+     protected void randomizeAttributes(final RandomSource random) {
+         this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(generateMaxHealth(random::nextInt));
+diff --git a/net/minecraft/world/entity/animal/equine/Llama.java b/net/minecraft/world/entity/animal/equine/Llama.java
+index aa3f316705e00a040dc37aa509963f760335db2b..9e804901e3a20ea98469ac2b9a9c32658db73de5 100644
+--- a/net/minecraft/world/entity/animal/equine/Llama.java
++++ b/net/minecraft/world/entity/animal/equine/Llama.java
+@@ -83,6 +83,14 @@ public class Llama extends AbstractChestedHorse implements RangedAttackMob {
+         this.maxDomestication = 30; // Paper - Missing entity API; configure max temper instead of a hardcoded value
+     }
+ 
++    // Velvety start - Breedable mobs can have multiple babies
++    @Override
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() {
++        com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig = this.level().velvetyConfig;
++        return new com.kacimiamine.velvety.entity.mob.Breeding(velvetyConfig.llamaBreedingChance, velvetyConfig.llamaBreedingMinOffspring, velvetyConfig.llamaBreedingMaxOffspring);
++    }
++    // Velvety end - Breedable mobs can have multiple babies
++
+     public boolean isTraderLlama() {
+         return false;
+     }
+diff --git a/net/minecraft/world/entity/animal/equine/TraderLlama.java b/net/minecraft/world/entity/animal/equine/TraderLlama.java
+index 7c92c9335997cee76ff360c51f704ee41a180796..5bce524e7cc8458cdfb2ed533e0f59d05f88a40b 100644
+--- a/net/minecraft/world/entity/animal/equine/TraderLlama.java
++++ b/net/minecraft/world/entity/animal/equine/TraderLlama.java
+@@ -32,6 +32,14 @@ public class TraderLlama extends Llama {
+         super(type, level);
+     }
+ 
++    // Velvety start - Breedable mobs can have multiple babies
++    @Override
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() {
++        com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig = this.level().velvetyConfig;
++        return new com.kacimiamine.velvety.entity.mob.Breeding(velvetyConfig.traderLlamaBreedingChance, velvetyConfig.traderLlamaBreedingMinOffspring, velvetyConfig.traderLlamaBreedingMaxOffspring);
++    }
++    // Velvety end - Breedable mobs can have multiple babies
++
+     @Override
+     public boolean isTraderLlama() {
+         return true;
+diff --git a/net/minecraft/world/entity/animal/feline/Cat.java b/net/minecraft/world/entity/animal/feline/Cat.java
+index 608118a7388c834924bb0309f02e7f32fa764884..e5ceb1a93631c45b61ec8d39639e0a634c7dc451 100644
+--- a/net/minecraft/world/entity/animal/feline/Cat.java
++++ b/net/minecraft/world/entity/animal/feline/Cat.java
+@@ -102,6 +102,14 @@ public class Cat extends TamableAnimal {
+         this.reassessTameGoals();
+     }
+ 
++    // Velvety start - Breedable mobs can have multiple babies
++    @Override
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() {
++        com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig = this.level().velvetyConfig;
++        return new com.kacimiamine.velvety.entity.mob.Breeding(velvetyConfig.catBreedingChance, velvetyConfig.catBreedingMinOffspring, velvetyConfig.catBreedingMaxOffspring);
++    }
++    // Velvety end - Breedable mobs can have multiple babies
++
+     @Override
+     protected void registerGoals() {
+         this.temptGoal = new Cat.CatTemptGoal(this, 0.6, i -> i.is(ItemTags.CAT_FOOD), true);
+diff --git a/net/minecraft/world/entity/animal/feline/Ocelot.java b/net/minecraft/world/entity/animal/feline/Ocelot.java
+index 9c58a0ada0ab1e6d89f7e3505948694febc99df8..cc94bbaaf91923bc267a6359cda26897d3970bc7 100644
+--- a/net/minecraft/world/entity/animal/feline/Ocelot.java
++++ b/net/minecraft/world/entity/animal/feline/Ocelot.java
+@@ -73,6 +73,14 @@ public class Ocelot extends Animal {
+         this.reassessTrustingGoals();
+     }
+ 
++    // Velvety start - Breedable mobs can have multiple babies
++    @Override
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() {
++        com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig = this.level().velvetyConfig;
++        return new com.kacimiamine.velvety.entity.mob.Breeding(velvetyConfig.ocelotBreedingChance, velvetyConfig.ocelotBreedingMinOffspring, velvetyConfig.ocelotBreedingMaxOffspring);
++    }
++    // Velvety end - Breedable mobs can have multiple babies
++
+     public boolean isTrusting() {
+         return this.entityData.get(DATA_TRUSTING);
+     }
+diff --git a/net/minecraft/world/entity/animal/fox/Fox.java b/net/minecraft/world/entity/animal/fox/Fox.java
+index 8f2cd8975625beacdad077b8d31a33dab4145624..9a8db908a45f7fc84fd1dc2ef6aee189e69ff0d0 100644
+--- a/net/minecraft/world/entity/animal/fox/Fox.java
++++ b/net/minecraft/world/entity/animal/fox/Fox.java
+@@ -160,6 +160,14 @@ public class Fox extends Animal {
+         this.getNavigation().setRequiredPathLength(32.0F);
+     }
+ 
++    // Velvety start - Breedable mobs can have multiple babies
++    @Override
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() {
++        com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig = this.level().velvetyConfig;
++        return new com.kacimiamine.velvety.entity.mob.Breeding(velvetyConfig.foxBreedingChance, velvetyConfig.foxBreedingMinOffspring, velvetyConfig.foxBreedingMaxOffspring);
++    }
++    // Velvety end - Breedable mobs can have multiple babies
++
+     @Override
+     protected void defineSynchedData(final SynchedEntityData.Builder entityData) {
+         super.defineSynchedData(entityData);
+diff --git a/net/minecraft/world/entity/animal/frog/Frog.java b/net/minecraft/world/entity/animal/frog/Frog.java
+index d7d8216524e8e4c66c9e5a8dd4e682f46f335ca1..a0edf5023753cc6074a18e090176566c7cfc7573 100644
+--- a/net/minecraft/world/entity/animal/frog/Frog.java
++++ b/net/minecraft/world/entity/animal/frog/Frog.java
+@@ -92,6 +92,14 @@ public class Frog extends Animal {
+         this.moveControl = new SmoothSwimmingMoveControl<>(this, 85, 10, 0.02F, 0.1F, true);
+     }
+ 
++    // Velvety start - Breedable mobs can have multiple babies
++    @Override
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() {
++        com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig = this.level().velvetyConfig;
++        return new com.kacimiamine.velvety.entity.mob.Breeding(velvetyConfig.frogBreedingChance, velvetyConfig.frogBreedingMinOffspring, velvetyConfig.frogBreedingMaxOffspring);
++    }
++    // Velvety end - Breedable mobs can have multiple babies
++
+     @Override
+     protected Brain<Frog> makeBrain(final Brain.Packed packedBrain) {
+         return BRAIN_PROVIDER.makeBrain(this, packedBrain);
+diff --git a/net/minecraft/world/entity/animal/goat/Goat.java b/net/minecraft/world/entity/animal/goat/Goat.java
+index 588be92d27cf1caa53515e4dae1406403a808571..a85b16865172f0e3efd124ac311ec5b0bb6a729d 100644
+--- a/net/minecraft/world/entity/animal/goat/Goat.java
++++ b/net/minecraft/world/entity/animal/goat/Goat.java
+@@ -95,6 +95,14 @@ public class Goat extends Animal {
+         this.setPathfindingMalus(PathType.ON_TOP_OF_POWDER_SNOW, -1.0F);
+     }
+ 
++    // Velvety start - Breedable mobs can have multiple babies
++    @Override
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() {
++        com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig = this.level().velvetyConfig;
++        return new com.kacimiamine.velvety.entity.mob.Breeding(velvetyConfig.goatBreedingChance, velvetyConfig.goatBreedingMinOffspring, velvetyConfig.goatBreedingMaxOffspring);
++    }
++    // Velvety end - Breedable mobs can have multiple babies
++
+     public ItemStack createHorn() {
+         RandomSource random = RandomSource.createThreadLocalInstance(this.getUUID().hashCode());
+         TagKey<Instrument> key = this.isScreamingGoat() ? InstrumentTags.SCREAMING_GOAT_HORNS : InstrumentTags.REGULAR_GOAT_HORNS;
+diff --git a/net/minecraft/world/entity/animal/nautilus/Nautilus.java b/net/minecraft/world/entity/animal/nautilus/Nautilus.java
+index d6ba5f201314148a382ce71e2c570f336c5d7d40..27d4ebd7bdcc75a80b06cd41edbee6605b7a05ad 100644
+--- a/net/minecraft/world/entity/animal/nautilus/Nautilus.java
++++ b/net/minecraft/world/entity/animal/nautilus/Nautilus.java
+@@ -37,6 +37,14 @@ public class Nautilus extends AbstractNautilus {
+         super(type, level);
+     }
+ 
++    // Velvety start - Breedable mobs can have multiple babies
++    @Override
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() {
++        com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig = this.level().velvetyConfig;
++        return new com.kacimiamine.velvety.entity.mob.Breeding(velvetyConfig.nautilusBreedingChance, velvetyConfig.nautilusBreedingMinOffspring, velvetyConfig.nautilusBreedingMaxOffspring);
++    }
++    // Velvety end - Breedable mobs can have multiple babies
++
+     @Override
+     protected Brain<Nautilus> makeBrain(final Brain.Packed packedBrain) {
+         return BRAIN_PROVIDER.makeBrain(this, packedBrain);
+diff --git a/net/minecraft/world/entity/animal/panda/Panda.java b/net/minecraft/world/entity/animal/panda/Panda.java
+index 5f41c5422f21bafb9bce2c90d8ff52cca3c5ef07..9de75b3a7d69d3e3cf883f65f5c61c4bf2526537 100644
+--- a/net/minecraft/world/entity/animal/panda/Panda.java
++++ b/net/minecraft/world/entity/animal/panda/Panda.java
+@@ -112,6 +112,14 @@ public class Panda extends Animal {
+         }
+     }
+ 
++    // Velvety start - Breedable mobs can have multiple babies
++    @Override
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() {
++        com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig = this.level().velvetyConfig;
++        return new com.kacimiamine.velvety.entity.mob.Breeding(velvetyConfig.pandaBreedingChance, velvetyConfig.pandaBreedingMinOffspring, velvetyConfig.pandaBreedingMaxOffspring);
++    }
++    // Velvety end - Breedable mobs can have multiple babies
++
+     @Override
+     protected boolean canDispenserEquipIntoSlot(final EquipmentSlot slot) {
+         return slot == EquipmentSlot.MAINHAND && this.canPickUpLoot();
+diff --git a/net/minecraft/world/entity/animal/pig/Pig.java b/net/minecraft/world/entity/animal/pig/Pig.java
+index 9ff021a13a2c654d7edf9bf202fcbc2494b22100..3cd55962fd0dbab1baa5d220ac3b6705320dfed1 100644
+--- a/net/minecraft/world/entity/animal/pig/Pig.java
++++ b/net/minecraft/world/entity/animal/pig/Pig.java
+@@ -76,6 +76,14 @@ public class Pig extends Animal implements ItemSteerable {
+         super(type, level);
+     }
+ 
++    // Velvety start - Breedable mobs can have multiple babies
++    @Override
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() {
++        com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig = this.level().velvetyConfig;
++        return new com.kacimiamine.velvety.entity.mob.Breeding(velvetyConfig.pigBreedingChance, velvetyConfig.pigBreedingMinOffspring, velvetyConfig.pigBreedingMaxOffspring);
++    }
++    // Velvety end - Breedable mobs can have multiple babies
++
+     @Override
+     protected void registerGoals() {
+         this.goalSelector.addGoal(0, new FloatGoal(this));
+diff --git a/net/minecraft/world/entity/animal/rabbit/Rabbit.java b/net/minecraft/world/entity/animal/rabbit/Rabbit.java
+index de39f94ed46c095f3b14eb0dc4589b7b9ebb4f79..c38e7fd6ad8677d2876978c177d1643aeffb712e 100644
+--- a/net/minecraft/world/entity/animal/rabbit/Rabbit.java
++++ b/net/minecraft/world/entity/animal/rabbit/Rabbit.java
+@@ -117,6 +117,14 @@ public class Rabbit extends Animal {
+         // this.setSpeedModifier(0.0); // CraftBukkit
+     }
+ 
++    // Velvety start - Breedable mobs can have multiple babies
++    @Override
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() {
++        com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig = this.level().velvetyConfig;
++        return new com.kacimiamine.velvety.entity.mob.Breeding(velvetyConfig.rabbitBreedingChance, velvetyConfig.rabbitBreedingMinOffspring, velvetyConfig.rabbitBreedingMaxOffspring);
++    }
++    // Velvety end - Breedable mobs can have multiple babies
++
+     @Override
+     protected void registerGoals() {
+         this.goalSelector.addGoal(1, new FloatGoal(this));
+diff --git a/net/minecraft/world/entity/animal/sheep/Sheep.java b/net/minecraft/world/entity/animal/sheep/Sheep.java
+index 450bdc5fab3b4e2fd9007595b339327adebbca60..dcfdb77337ffc3590c7aa43f101fb9d4fcd19f84 100644
+--- a/net/minecraft/world/entity/animal/sheep/Sheep.java
++++ b/net/minecraft/world/entity/animal/sheep/Sheep.java
+@@ -71,6 +71,14 @@ public class Sheep extends Animal implements Shearable {
+         super(type, level);
+     }
+ 
++    // Velvety start - Breedable mobs can have multiple babies
++    @Override
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() {
++        com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig = this.level().velvetyConfig;
++        return new com.kacimiamine.velvety.entity.mob.Breeding(velvetyConfig.sheepBreedingChance, velvetyConfig.sheepBreedingMinOffspring, velvetyConfig.sheepBreedingMaxOffspring);
++    }
++    // Velvety end - Breedable mobs can have multiple babies
++
+     @Override
+     protected void registerGoals() {
+         this.eatBlockGoal = new EatBlockGoal(this);
+diff --git a/net/minecraft/world/entity/animal/turtle/Turtle.java b/net/minecraft/world/entity/animal/turtle/Turtle.java
+index b8573f3739f06d26c0f83b9e756f1d6cf582108d..5855d37507ace4af5f67ce069dabf93211739167 100644
+--- a/net/minecraft/world/entity/animal/turtle/Turtle.java
++++ b/net/minecraft/world/entity/animal/turtle/Turtle.java
+@@ -88,6 +88,14 @@ public class Turtle extends Animal {
+         this.moveControl = new Turtle.TurtleMoveControl<>(this);
+     }
+ 
++    // Velvety start - Breedable mobs can have multiple babies
++    @Override
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() {
++        com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig = this.level().velvetyConfig;
++        return new com.kacimiamine.velvety.entity.mob.Breeding(velvetyConfig.turtleBreedingChance, velvetyConfig.turtleBreedingMinOffspring, velvetyConfig.turtleBreedingMaxOffspring);
++    }
++    // Velvety end - Breedable mobs can have multiple babies
++
+     public void setHomePos(final BlockPos pos) {
+         this.homePos = pos;
+     }
+diff --git a/net/minecraft/world/entity/animal/wolf/Wolf.java b/net/minecraft/world/entity/animal/wolf/Wolf.java
+index 52bd00213dbbbef45c1039f13aa7dd3ef2bf6dad..5372a1a1f43e980e83a61f616a087e7fc4bb1e7c 100644
+--- a/net/minecraft/world/entity/animal/wolf/Wolf.java
++++ b/net/minecraft/world/entity/animal/wolf/Wolf.java
+@@ -125,6 +125,14 @@ public class Wolf extends TamableAnimal implements NeutralMob {
+         this.setPathfindingMalus(PathType.ON_TOP_OF_POWDER_SNOW, -1.0F);
+     }
+ 
++    // Velvety start - Breedable mobs can have multiple babies
++    @Override
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() {
++        com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig = this.level().velvetyConfig;
++        return new com.kacimiamine.velvety.entity.mob.Breeding(velvetyConfig.wolfBreedingChance, velvetyConfig.wolfBreedingMinOffspring, velvetyConfig.wolfBreedingMaxOffspring);
++    }
++    // Velvety end - Breedable mobs can have multiple babies
++
+     @Override
+     protected void registerGoals() {
+         this.goalSelector.addGoal(1, new FloatGoal(this));
+diff --git a/net/minecraft/world/entity/monster/Strider.java b/net/minecraft/world/entity/monster/Strider.java
+index dcbbdf1aa3bcd18996cd382fd46949722313f45c..49bc07e4069f270b52a50beaa331c3567ba6e603 100644
+--- a/net/minecraft/world/entity/monster/Strider.java
++++ b/net/minecraft/world/entity/monster/Strider.java
+@@ -99,6 +99,14 @@ public class Strider extends Animal implements ItemSteerable {
+         this.setPathfindingMalus(PathType.FIRE, 0.0F);
+     }
+ 
++    // Velvety start - Breedable mobs can have multiple babies
++    @Override
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() {
++        com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig = this.level().velvetyConfig;
++        return new com.kacimiamine.velvety.entity.mob.Breeding(velvetyConfig.striderBreedingChance, velvetyConfig.striderBreedingMinOffspring, velvetyConfig.striderBreedingMaxOffspring);
++    }
++    // Velvety end - Breedable mobs can have multiple babies
++
+     public static boolean checkStriderSpawnRules(
+         final EntityType<Strider> ignoredType,
+         final LevelAccessor level,
+diff --git a/net/minecraft/world/entity/monster/hoglin/Hoglin.java b/net/minecraft/world/entity/monster/hoglin/Hoglin.java
+index 3502d3de38f088c62344e189ea9e68dfe58aa28a..a772b20cb951883144b335f0a39e7e57c60b4549 100644
+--- a/net/minecraft/world/entity/monster/hoglin/Hoglin.java
++++ b/net/minecraft/world/entity/monster/hoglin/Hoglin.java
+@@ -81,6 +81,14 @@ public class Hoglin extends Animal implements Enemy, HoglinBase {
+         this.xpReward = 5;
+     }
+ 
++    // Velvety start - Breedable mobs can have multiple babies
++    @Override
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() {
++        com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig = this.level().velvetyConfig;
++        return new com.kacimiamine.velvety.entity.mob.Breeding(velvetyConfig.hoglinBreedingChance, velvetyConfig.hoglinBreedingMinOffspring, velvetyConfig.hoglinBreedingMaxOffspring);
++    }
++    // Velvety end - Breedable mobs can have multiple babies
++
+     @VisibleForTesting
+     public void setTimeInOverworld(final int timeInOverworld) {
+         this.timeInOverworld = timeInOverworld;
+diff --git a/net/minecraft/world/entity/npc/villager/Villager.java b/net/minecraft/world/entity/npc/villager/Villager.java
+index e6f3961f1573dffef51b8ee724a52800c8a6004b..3113518e5563d3f8a67be10af9b7032397f74fdb 100644
+--- a/net/minecraft/world/entity/npc/villager/Villager.java
++++ b/net/minecraft/world/entity/npc/villager/Villager.java
+@@ -187,6 +187,23 @@ public class Villager extends AbstractVillager implements VillagerDataHolder, Re
+         this.setCanPickUpLoot(true);
+     }
+ 
++    // Velvety start - Breedable mobs can have multiple babies
++    @Override
++    protected com.kacimiamine.velvety.entity.mob.Breeding breeding() {
++        com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig = this.level().velvetyConfig;
++        return new com.kacimiamine.velvety.entity.mob.Breeding(velvetyConfig.villagerBreedingChance, velvetyConfig.villagerBreedingMinOffspring, velvetyConfig.villagerBreedingMaxOffspring);
++    }
++
++    @Override
++    public int getBreedingMinOffspring() { return super.getBreedingMinOffspring(); }
++
++    @Override
++    public int getBreedingMaxOffspring() { return super.getBreedingMaxOffspring(); }
++
++    @Override
++    public boolean willHaveAnotherBaby() { return super.willHaveAnotherBaby(); }
++    // Velvety end - Breedable mobs can have multiple babies
++
+     @Override
+     public Brain<Villager> getBrain() {
+         return (Brain<Villager>)super.getBrain();
+diff --git a/net/minecraft/world/level/block/FrogspawnBlock.java b/net/minecraft/world/level/block/FrogspawnBlock.java
+index 2dd8fa5f364e77665903491b148e99e47e9a893e..43b91a843025a168cffc861a760ee793be59ed66 100644
+--- a/net/minecraft/world/level/block/FrogspawnBlock.java
++++ b/net/minecraft/world/level/block/FrogspawnBlock.java
+@@ -120,9 +120,10 @@ public class FrogspawnBlock extends Block {
+     }
+ 
+     private void spawnTadpoles(final ServerLevel level, final BlockPos pos, final RandomSource random) {
+-        int tadpoleAmount = random.nextInt(2, 6);
++        int tadpoleAmount = random.nextInt(level.velvetyConfig.frogBreedingMinOffspring, level.velvetyConfig.frogBreedingMaxOffspring); // Velvety - Breedable mobs can have multiple babies
+ 
+         for (int i = 1; i <= tadpoleAmount; i++) {
++            if ((level.velvetyConfig.frogBreedingChance <= 0.0D) || (level.velvetyConfig.frogBreedingChance < random.nextDouble())) return; // Velvety - Breedable mobs can have multiple babies
+             Tadpole tadpole = EntityTypes.TADPOLE.create(level, EntitySpawnReason.BREEDING);
+             if (tadpole != null) {
+                 double xPos = pos.getX() + this.getRandomTadpolePositionOffset(random);
+diff --git a/net/minecraft/world/level/block/TurtleEggBlock.java b/net/minecraft/world/level/block/TurtleEggBlock.java
+index 4b3230e2e7ff911b42b9340f5fba4230b2174a00..8f8335e7725a37bd14b18b0f42bb295b6975945c 100644
+--- a/net/minecraft/world/level/block/TurtleEggBlock.java
++++ b/net/minecraft/world/level/block/TurtleEggBlock.java
+@@ -121,6 +121,12 @@ public class TurtleEggBlock extends Block {
+                 level.gameEvent(GameEvent.BLOCK_DESTROY, pos, GameEvent.Context.of(state));
+ 
+                 for (int i = 0; i < state.getValue(EGGS); i++) {
++                    // Velvety start - Breedable mobs can have multiple babies
++                    int currentBabyCount = 0;
++                    while ((currentBabyCount < level.velvetyConfig.turtleBreedingMinOffspring) ||
++                        ((level.velvetyConfig.turtleBreedingChance > 0.0D && level.velvetyConfig.turtleBreedingChance >= random.nextDouble()) &&
++                            currentBabyCount < level.velvetyConfig.turtleBreedingMaxOffspring)) {
++                    // Velvety end - Breedable mobs can have multiple babies
+                     level.levelEvent(LevelEvent.PARTICLES_AND_SOUND_DESTROY_BLOCK, pos, Block.getId(state));
+                     Turtle turtle = EntityTypes.TURTLE.create(level, EntitySpawnReason.BREEDING);
+                     if (turtle != null) {
+@@ -128,6 +134,10 @@ public class TurtleEggBlock extends Block {
+                         turtle.setHomePos(pos);
+                         turtle.snapTo(pos.getX() + 0.3 + i * 0.2, pos.getY(), pos.getZ() + 0.3, 0.0F, 0.0F);
+                         level.addFreshEntity(turtle, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.EGG); // CraftBukkit
++                        // Velvety start - Breedable mobs can have multiple babies
++                            currentBabyCount++;
++                        }
++                        // Velvety end - Breedable mobs can have multiple babies
+                     }
+                 }
+             }
