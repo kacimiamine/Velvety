@@ -1,0 +1,32 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: kacimiamine <contact@kacimiamine.com>
+Date: Thu, 1 Oct 2026 12:04:47 +0100
+Subject: [PATCH] Unbreakable turtle eggs
+
+
+diff --git a/net/minecraft/world/entity/ai/goal/RemoveBlockGoal.java b/net/minecraft/world/entity/ai/goal/RemoveBlockGoal.java
+index 7f93335c30da56c913e1fbae4b8b82f3c7e051e9..6db286aa951aa616e02ec3a369d057fbffe1e7f7 100644
+--- a/net/minecraft/world/entity/ai/goal/RemoveBlockGoal.java
++++ b/net/minecraft/world/entity/ai/goal/RemoveBlockGoal.java
+@@ -102,7 +102,8 @@ public class RemoveBlockGoal extends MoveToBlockGoal {
+ 
+             if (this.ticksSinceReachedGoal > 60) {
+                 // CraftBukkit start - Step on eggs
+-                if (!org.bukkit.craftbukkit.event.CraftEventFactory.callEntityInteractEvent(this.removerMob, org.bukkit.craftbukkit.block.CraftBlock.at(level, eatPos))) {
++                if (!org.bukkit.craftbukkit.event.CraftEventFactory.callEntityInteractEvent(this.removerMob, org.bukkit.craftbukkit.block.CraftBlock.at(level, eatPos))
++                        || (level.getBlockState(eatPos).is(net.minecraft.world.level.block.Blocks.TURTLE_EGG) && level.velvetyConfig.turtleEggUnbreakable)) { // Velvety - Unbreakable turtle eggs
+                     this.ticksSinceReachedGoal++;
+                     return;
+                 }
+diff --git a/net/minecraft/world/level/block/TurtleEggBlock.java b/net/minecraft/world/level/block/TurtleEggBlock.java
+index 47d4673aa97f2a087d3ca29498a8d1468fe9d192..4b3230e2e7ff911b42b9340f5fba4230b2174a00 100644
+--- a/net/minecraft/world/level/block/TurtleEggBlock.java
++++ b/net/minecraft/world/level/block/TurtleEggBlock.java
+@@ -190,6 +190,7 @@ public class TurtleEggBlock extends Block {
+     }
+ 
+     private boolean canDestroyEgg(final ServerLevel level, final BlockPos pos, final Entity entity) {
++        if (level.velvetyConfig.turtleEggUnbreakable) return false; // Velvety - Unbreakable turtle eggs
+         if (entity instanceof Turtle || entity instanceof Bat) {
+             return false;
+         } else {
