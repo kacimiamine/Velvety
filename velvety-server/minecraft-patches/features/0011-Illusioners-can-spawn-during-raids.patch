@@ -1,0 +1,43 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: kacimiamine <contact@kacimiamine.com>
+Date: Fri, 2 Oct 2026 11:03:52 +0100
+Subject: [PATCH] Illusioners can spawn during raids
+
+
+diff --git a/net/minecraft/world/entity/raid/Raid.java b/net/minecraft/world/entity/raid/Raid.java
+index 16d789ffce1f645505f51a1e61944cd2bc0672c5..3949a0d9335752e897d63d22cabcd79734d02482 100644
+--- a/net/minecraft/world/entity/raid/Raid.java
++++ b/net/minecraft/world/entity/raid/Raid.java
+@@ -552,6 +552,7 @@ public class Raid {
+         boolean isBonusGroup = this.shouldSpawnBonusGroup();
+ 
+         for (Raid.RaiderType raiderType : Raid.RaiderType.VALUES) {
++            if (!level.velvetyConfig.illusionerSpawnInRaids && raiderType.entityType == EntityTypes.ILLUSIONER) continue; // Velvety - Illusioners can spawn during raids
+             int numSpawns = this.getDefaultNumSpawns(raiderType, groupNumber, isBonusGroup)
+                 + this.getPotentialBonusSpawns(raiderType, this.random, groupNumber, difficulty, isBonusGroup);
+             int ravagersSpawned = 0;
+@@ -575,7 +576,7 @@ public class Raid {
+                         ridingRaider = EntityTypes.PILLAGER.create(level, EntitySpawnReason.EVENT);
+                     } else if (groupNumber >= this.getNumGroups(Difficulty.HARD)) {
+                         if (ravagersSpawned == 0) {
+-                            ridingRaider = EntityTypes.EVOKER.create(level, EntitySpawnReason.EVENT);
++                            ridingRaider = (level.velvetyConfig.illusionerSpawnInRaids && random.nextBoolean() ? EntityTypes.ILLUSIONER : EntityTypes.EVOKER).create(level, EntitySpawnReason.EVENT); // Velvety - Illusioners can spawn during raids
+                         } else {
+                             ridingRaider = EntityTypes.VINDICATOR.create(level, EntitySpawnReason.EVENT);
+                         }
+@@ -792,6 +793,7 @@ public class Raid {
+                 }
+                 break;
+             case EVOKER:
++            case ILLUSIONER: // Velvety - Illusioners can spawn during raids
+             default:
+                 return 0;
+             case WITCH:
+@@ -866,6 +868,7 @@ public class Raid {
+     private enum RaiderType {
+         VINDICATOR(EntityTypes.VINDICATOR, new int[]{0, 0, 2, 0, 1, 4, 2, 5}),
+         EVOKER(EntityTypes.EVOKER, new int[]{0, 0, 0, 0, 0, 1, 1, 2}),
++        ILLUSIONER(EntityTypes.ILLUSIONER, new int[]{0, 0, 0, 0, 0, 1, 1, 2}), // Velvety - Illusioners can spawn during raids
+         PILLAGER(EntityTypes.PILLAGER, new int[]{0, 4, 3, 3, 4, 4, 4, 2}),
+         WITCH(EntityTypes.WITCH, new int[]{0, 0, 0, 0, 3, 0, 0, 1}),
+         RAVAGER(EntityTypes.RAVAGER, new int[]{0, 0, 0, 1, 0, 1, 0, 2});

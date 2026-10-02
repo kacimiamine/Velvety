@@ -250,6 +250,11 @@ public class VelvetyWorldConfig {
         huskShouldBurnInDay = getBoolean("mobs.husk.should-burn-in-day", huskShouldBurnInDay);
     }
 
+    public boolean illusionerSpawnInRaids = false;
+    private void illusionerSettings() {
+        illusionerSpawnInRaids = getBoolean("mobs.illusioner.spawn-in-raids", illusionerSpawnInRaids);
+    }
+
     public double llamaBreedingChance = 0.0D;
     public int llamaBreedingMinOffspring = 1;
     public int llamaBreedingMaxOffspring = 1;
