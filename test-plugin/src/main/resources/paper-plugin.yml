@@ -1,0 +1,12 @@
+name: Velvety-Test-Plugin
+version: ${version}
+main: com.kacimiamine.velvety.testplugin.TestPlugin
+description: Velvety Test Plugin
+author: kacimiamine
+api-version: ${apiversion}
+load: STARTUP
+#bootstrapper: com.kacimiamine.velvety.testplugin.TestPluginBootstrap
+#loader: com.kacimiamine.velvety.testplugin.TestPluginLoader
+defaultPerm: FALSE
+permissions:
+dependencies:

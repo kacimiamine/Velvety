@@ -1,0 +1,16 @@
+--- a/src/main/java/io/papermc/paper/ServerBuildInfo.java
++++ b/src/main/java/io/papermc/paper/ServerBuildInfo.java
+@@ -17,6 +_,13 @@
+      */
+     Key BRAND_PAPER_ID = Key.key("papermc", "paper");
+ 
++    // Velvety start - Rebrand
++    /**
++     * The brand id for Velvety.
++     */
++    Key BRAND_VELVETY_ID = Key.key("velvetymc", "velvety");
++    // Velvety end - Rebrand
++
+     /**
+      * Gets the {@code ServerBuildInfo}.
+      *
