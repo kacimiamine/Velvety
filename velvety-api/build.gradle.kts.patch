@@ -15,7 +15,7 @@
  }
  
  val annotationsVersion = "26.1.0"
-@@ -103,7 +_,7 @@
+@@ -103,10 +_,10 @@
      testRuntimeOnly("org.junit.platform:junit-platform-launcher:6.0.3")
  
      // checkstyle
@@ -23,7 +23,11 @@
 +    checkstyle(project(":velvety-checkstyle")) // Velvety
  }
  
- val generatedDir: java.nio.file.Path = layout.projectDirectory.dir("src/generated/java").asFile.toPath()
+-val generatedDir: java.nio.file.Path = layout.projectDirectory.dir("src/generated/java").asFile.toPath()
++val generatedDir: java.nio.file.Path = rootProject.layout.projectDirectory.dir("paper-api/src/generated/java").asFile.toPath() // Velvety
+ idea {
+     module {
+         generatedSourceDirs.add(generatedDir.toFile())
 @@ -116,6 +_,20 @@
      main {
          java {
