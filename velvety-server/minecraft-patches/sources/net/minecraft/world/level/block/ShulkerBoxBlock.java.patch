@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/level/block/ShulkerBoxBlock.java
++++ b/net/minecraft/world/level/block/ShulkerBoxBlock.java
+@@ -81,7 +_,7 @@
+         }
+ 
+         AABB lidOpenBoundingBox = Shulker.getProgressDeltaAabb(1.0F, state.getValue(FACING), 0.0F, 0.5F, Vec3.atBottomCenterOf(pos)).deflate(1.0E-6);
+-        return level.noCollision(lidOpenBoundingBox);
++        return level.noCollision(lidOpenBoundingBox) || level.velvetyConfig.shulkerBoxAlwaysOpen; // Velvety - Chests can always be opened
+     }
+ 
+     @Override

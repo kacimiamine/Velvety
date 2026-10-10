@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/level/block/EnderChestBlock.java
++++ b/net/minecraft/world/level/block/EnderChestBlock.java
+@@ -76,7 +_,7 @@
+         PlayerEnderChestContainer container = player.getEnderChestInventory();
+         if (container != null && level.getBlockEntity(pos) instanceof EnderChestBlockEntity enderChest) {
+             BlockPos above = pos.above();
+-            if (level.getBlockState(above).isRedstoneConductor(level, above)) { // Paper - diff on change; make sure that EnderChest#isBlocked uses the same logic
++            if (level.getBlockState(above).isRedstoneConductor(level, above) && !level.velvetyConfig.enderChestAlwaysOpen) { // Paper - diff on change; make sure that EnderChest#isBlocked uses the same logic // Velvety - Chests can always be opened
+                 return InteractionResult.SUCCESS;
+             }
+ 

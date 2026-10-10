@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/level/block/ChestBlock.java
++++ b/net/minecraft/world/level/block/ChestBlock.java
+@@ -330,7 +_,7 @@
+     }
+ 
+     public static boolean isChestBlockedAt(final LevelAccessor level, final BlockPos pos) {
+-        return isBlockedChestByBlock(level, pos) || isCatSittingOnChest(level, pos);
++        return (isBlockedChestByBlock(level, pos) || isCatSittingOnChest(level, pos)) && !level.getMinecraftWorld().velvetyConfig.chestAlwaysOpen; // Velvety - Chests can always be opened
+     }
+ 
+     private static boolean isBlockedChestByBlock(final BlockGetter level, final BlockPos pos) {
