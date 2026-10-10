@@ -39,4 +39,9 @@ public class VelvetyGlobalConfig {
     private static boolean getBoolean(String path, boolean value) {
         return VelvetyConfig.getBoolean(config, path, value);
     }
+
+    public static boolean anvilCumulativeCost = true;
+    private static void anvilSettings() {
+        anvilCumulativeCost = getBoolean("blocks.anvil.cumulative-cost", anvilCumulativeCost);
+    }
 }

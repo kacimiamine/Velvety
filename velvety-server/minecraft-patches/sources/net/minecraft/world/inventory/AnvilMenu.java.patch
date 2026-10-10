@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/inventory/AnvilMenu.java
++++ b/net/minecraft/world/inventory/AnvilMenu.java
+@@ -295,7 +_,7 @@
+     }
+ 
+     public static int calculateIncreasedRepairCost(final int baseCost) {
+-        return (int)Math.min(baseCost * 2L + 1L, 2147483647L);
++        return com.kacimiamine.velvety.config.VelvetyGlobalConfig.anvilCumulativeCost ? (int)Math.min(baseCost * 2L + 1L, 2147483647L) : 0; // Velvety - Anvil cumulative cost
+     }
+ 
+     public boolean setItemName(final String name) {
