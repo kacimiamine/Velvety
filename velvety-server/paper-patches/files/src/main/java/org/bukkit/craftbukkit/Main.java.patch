@@ -1,18 +1,18 @@
 --- a/src/main/java/org/bukkit/craftbukkit/Main.java
 +++ b/src/main/java/org/bukkit/craftbukkit/Main.java
-@@ -23,6 +_,11 @@
- 
-     public static void main(String[] args) {
-         if (System.getProperty("jdk.nio.maxCachedBufferSize") == null) System.setProperty("jdk.nio.maxCachedBufferSize", "262144"); // Paper - cap per-thread NIO cache size; https://www.evanjones.ca/java-bytebuffer-leak.html
+@@ -27,6 +_,11 @@
+         if (System.getProperty("joml.nounsafe") == null) {
+             System.setProperty("joml.nounsafe", "true");
+         }
 +        // Velvety start - Velvety config
 +        String sparkExtraConfigs = System.getProperty("spark.serverconfigs.extra");
 +        String velvetyConfigs = com.kacimiamine.velvety.config.VelvetyConfig.getSparkVelvetyConfigs();
 +        System.setProperty("spark.serverconfigs.extra", sparkExtraConfigs == null ? velvetyConfigs : sparkExtraConfigs + "," + velvetyConfigs);
 +        // Velvety end - Velvety config
+ 
          OptionParser parser = new OptionParser() {
              {
-                 this.acceptsAll(asList("?", "help"), "Show the help");
-@@ -138,6 +_,14 @@
+@@ -143,6 +_,14 @@
                          .ofType(File.class)
                          .defaultsTo(new File[] {})
                          .describedAs("Plugin directory");
