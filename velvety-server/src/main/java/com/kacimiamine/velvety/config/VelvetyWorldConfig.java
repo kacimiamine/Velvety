@@ -61,4 +61,9 @@ public class VelvetyWorldConfig {
         if (worldConfig != null) return VelvetyConfig.getBoolean(worldConfig, path, value);
         return VelvetyConfig.getBoolean(defaultConfig, path, value);
     }
+
+    public boolean leavesInstantDecay = false;
+    private void blockSettings() {
+        leavesInstantDecay = getBoolean("blocks.leaves.instant-decay", leavesInstantDecay);
+    }
 }
