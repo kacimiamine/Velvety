@@ -57,5 +57,8 @@ ij_java_use_fq_class_names = true
 [velvety-server/src/minecraft/resources/data/**/*.json]
 indent_size = 2
 
+[paper-server/src/main/java/**/*.java]
+ij_java_use_fq_class_names = true
+
 [paper-{server,api}/src/generated/java/**/*.java]
 ij_java_imports_layout = $*, |, *

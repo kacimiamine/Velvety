@@ -1,0 +1,18 @@
+--- a/net/minecraft/world/level/Level.java
++++ b/net/minecraft/world/level/Level.java
+@@ -169,6 +_,7 @@
+         return this.paperConfig;
+     }
+     // Paper end - add paper world config
++    public final com.kacimiamine.velvety.config.VelvetyWorldConfig velvetyConfig; // Velvety - Velvety config
+ 
+     public static @Nullable BlockPos lastPhysicsProblem; // Spigot
+     public final Map<ServerExplosion.CacheKey, Float> explosionDensityCache = new java.util.HashMap<>(); // Paper - Optimize explosions
+@@ -851,6 +_,7 @@
+         final org.bukkit.NamespacedKey worldKey = CraftNamespacedKey.fromMinecraft(dimension.identifier()); // Paper
+         this.spigotConfig = new org.spigotmc.SpigotWorldConfig(bukkitName, worldKey); // Spigot
+         this.paperConfig = paperWorldConfigCreator.apply(this.spigotConfig); // Paper - create paper world config
++        this.velvetyConfig = new com.kacimiamine.velvety.config.VelvetyWorldConfig(worldKey); // Velvety - Velvety config
+         this.generator = generator;
+         this.world = new CraftWorld((ServerLevel) this, worldKey, biomeProvider, environment);
+ 
