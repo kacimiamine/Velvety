@@ -1,5 +1,6 @@
 package com.kacimiamine.velvety.config;
 
+import net.kyori.adventure.util.TriState;
 import org.bukkit.configuration.file.YamlConfiguration;
 import java.io.File;
 
@@ -38,6 +39,10 @@ public class VelvetyGlobalConfig {
 
     private static boolean getBoolean(String path, boolean value) {
         return VelvetyConfig.getBoolean(config, path, value);
+    }
+
+    public static TriState getTriState(String path, TriState value) {
+        return VelvetyConfig.getTriState(config, path, value);
     }
 
     public static boolean anvilCumulativeCost = true;

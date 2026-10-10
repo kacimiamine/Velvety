@@ -1,6 +1,7 @@
 package com.kacimiamine.velvety.config;
 
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.util.TriState;
 import org.bukkit.configuration.file.YamlConfiguration;
 import java.io.File;
 
@@ -60,6 +61,11 @@ public class VelvetyWorldConfig {
     private boolean getBoolean(String path, boolean value) {
         if (worldConfig != null) return VelvetyConfig.getBoolean(worldConfig, path, value);
         return VelvetyConfig.getBoolean(defaultConfig, path, value);
+    }
+
+    private TriState getTriState(String path, TriState value) {
+        if (worldConfig != null) return VelvetyConfig.getTriState(worldConfig, path, value);
+        return VelvetyConfig.getTriState(defaultConfig, path, value);
     }
 
     public boolean chestAlwaysOpen = false;

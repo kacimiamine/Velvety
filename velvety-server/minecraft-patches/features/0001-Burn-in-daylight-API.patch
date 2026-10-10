@@ -5,7 +5,7 @@ Subject: [PATCH] Burn in daylight API
 
 
 diff --git a/net/minecraft/world/entity/Mob.java b/net/minecraft/world/entity/Mob.java
-index 51dec65d0f437deb370eabbfa0369c4232caac14..699f3edfc6d3a2798c2db2967553bcfc0e027296 100644
+index 51dec65d0f437deb370eabbfa0369c4232caac14..0e7bdb238108b922ca1dfb4f75f601b0668833e3 100644
 --- a/net/minecraft/world/entity/Mob.java
 +++ b/net/minecraft/world/entity/Mob.java
 @@ -156,6 +156,7 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
@@ -32,7 +32,7 @@ index 51dec65d0f437deb370eabbfa0369c4232caac14..699f3edfc6d3a2798c2db2967553bcfc
          this.setNoAi(input.getBooleanOr("NoAI", false));
          this.aware = input.getBooleanOr("Bukkit.Aware", true); // CraftBukkit
          this.despawnInPeacefulOverride = input.read("Paper.DespawnInPeacefulOverride", io.papermc.paper.util.PaperCodecs.TRI_STATE_CODEC).orElse(net.kyori.adventure.util.TriState.NOT_SET); // Paper - allow changing despawnInPeaceful
-+        this.burnInDayLightOverride = input.read("Velvety.BurnInDayLightOverride", io.papermc.paper.util.PaperCodecs.TRI_STATE_CODEC).orElse(net.kyori.adventure.util.TriState.NOT_SET); // Velvety - burnInDaylight API
++        this.burnInDayLightOverride = input.read("Velvety.BurnInDayLightOverride", io.papermc.paper.util.PaperCodecs.TRI_STATE_CODEC).orElse(this.burnInDayLightOverride); // Velvety - burnInDaylight API
      }
  
      @Override

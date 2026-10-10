@@ -2,6 +2,7 @@ package com.kacimiamine.velvety.config;
 
 import com.kacimiamine.velvety.command.VelvetyCommand;
 import com.mojang.logging.LogUtils;
+import net.kyori.adventure.util.TriState;
 import net.minecraft.server.MinecraftServer;
 import org.bukkit.command.Command;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -14,6 +15,7 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class VelvetyConfig {
@@ -97,6 +99,14 @@ public class VelvetyConfig {
     public static boolean getBoolean(YamlConfiguration config, String path, boolean value) {
         if (config.isSet(path)) return config.getBoolean(path);
         config.set(path, value);
+        return value;
+    }
+
+    public static TriState getTriState(YamlConfiguration config, String path, TriState value) {
+        if (config.isSet(path)) {
+            return TriState.valueOf(Objects.requireNonNull(config.getString(path)).toUpperCase());
+        }
+        config.set(path, value.name().toLowerCase());
         return value;
     }
 }
