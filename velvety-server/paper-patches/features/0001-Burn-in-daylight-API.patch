@@ -1,0 +1,103 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: kacimiamine <contact@kacimiamine.com>
+Date: Sat, 10 Oct 2026 21:51:27 +0100
+Subject: [PATCH] Burn in daylight API
+
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftAbstractSkeleton.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftAbstractSkeleton.java
+index 879f57922cc04b553328fa1fe2f83afb4663db0b..d23d3e81e75ec70bab2399c51f3c97297d1b987c 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftAbstractSkeleton.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftAbstractSkeleton.java
+@@ -22,11 +22,15 @@ public abstract class CraftAbstractSkeleton extends CraftMonster implements Abst
+ 
+     @Override
+     public boolean shouldBurnInDay() {
+-        return getHandle().shouldBurnInDay();
++        return this.burnsInDaylight(); // Velvety - burnInDaylight API
+     }
+ 
+     @Override
+     public void setShouldBurnInDay(boolean shouldBurnInDay) {
+-        getHandle().setShouldBurnInDay(shouldBurnInDay);
++        // Velvety start - burnInDaylight API
++        this.setBurnInDaylightOverride(shouldBurnInDay == this.getHandle().is(net.minecraft.tags.EntityTypeTags.BURN_IN_DAYLIGHT)
++            ? net.kyori.adventure.util.TriState.NOT_SET
++            : net.kyori.adventure.util.TriState.byBoolean(shouldBurnInDay));
++        // Velvety end - burnInDaylight API
+     }
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftMob.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftMob.java
+index bbfad22a63eeaee7590c88883c3da5239aa46198..f0c2a9c64149a219347555f961da458f7e58f789 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftMob.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftMob.java
+@@ -200,4 +200,21 @@ public abstract class CraftMob extends CraftLivingEntity implements Mob, io.pape
+     public boolean setLeashHolder(final org.bukkit.entity.Entity holder) {
+         return io.papermc.paper.entity.PaperLeashable.super.setLeashHolder(holder);
+     }
++
++    // Velvety start - burnInDaylight API
++    @Override
++    public boolean burnsInDaylight() {
++        return this.getHandle().is(net.minecraft.tags.EntityTypeTags.BURN_IN_DAYLIGHT);
++    }
++
++    @Override
++    public net.kyori.adventure.util.@org.jspecify.annotations.NonNull TriState getBurnInDaylightOverride() {
++        return this.getHandle().burnInDayLightOverride;
++    }
++
++    @Override
++    public void setBurnInDaylightOverride(final net.kyori.adventure.util.@org.jspecify.annotations.NonNull TriState state) {
++        this.getHandle().burnInDayLightOverride = state;
++    }
++    // Velvety end - burnInDaylight API
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftPhantom.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftPhantom.java
+index db0e625d8ba721b0ad6913fe4a11ed8eb939d344..c8c251dfaa093e26de7774868523be7ab1e3d027 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftPhantom.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftPhantom.java
+@@ -35,12 +35,16 @@ public class CraftPhantom extends CraftMob implements Phantom, CraftEnemy {
+ 
+     @Override
+     public boolean shouldBurnInDay() {
+-        return this.getHandle().shouldBurnInDay;
++        return this.burnsInDaylight(); // Velvety - burnInDaylight API
+     }
+ 
+     @Override
+     public void setShouldBurnInDay(boolean shouldBurnInDay) {
+-        this.getHandle().shouldBurnInDay = shouldBurnInDay;
++        // Velvety start - burnInDaylight API
++        this.setBurnInDaylightOverride(shouldBurnInDay == this.getHandle().is(net.minecraft.tags.EntityTypeTags.BURN_IN_DAYLIGHT)
++            ? net.kyori.adventure.util.TriState.NOT_SET
++            : net.kyori.adventure.util.TriState.byBoolean(shouldBurnInDay));
++        // Velvety end - burnInDaylight API
+     }
+ 
+     @Override
+diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftZombie.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftZombie.java
+index 056f0ebc8f2eabae22ed2e80f6f6ff6eb18973dc..09af019f171e5494ef8ed76a9a2885f515cbd64b 100644
+--- a/src/main/java/org/bukkit/craftbukkit/entity/CraftZombie.java
++++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftZombie.java
+@@ -100,7 +100,7 @@ public class CraftZombie extends CraftMonster implements Zombie {
+ 
+     @Override
+     public boolean shouldBurnInDay() {
+-        return this.getHandle().isSunSensitive();
++        return this.burnsInDaylight(); // Velvety - burnInDaylight API
+     }
+ 
+     @Override
+@@ -115,7 +115,11 @@ public class CraftZombie extends CraftMonster implements Zombie {
+ 
+     @Override
+     public void setShouldBurnInDay(boolean shouldBurnInDay) {
+-        this.getHandle().setShouldBurnInDay(shouldBurnInDay);
++        // Velvety start - burnInDaylight API
++        this.setBurnInDaylightOverride(shouldBurnInDay == this.getHandle().is(net.minecraft.tags.EntityTypeTags.BURN_IN_DAYLIGHT)
++            ? net.kyori.adventure.util.TriState.NOT_SET
++            : net.kyori.adventure.util.TriState.byBoolean(shouldBurnInDay));
++        // Velvety end - burnInDaylight API
+     }
+ 
+     @Override

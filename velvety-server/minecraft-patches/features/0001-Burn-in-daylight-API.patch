@@ -1,0 +1,113 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: kacimiamine <contact@kacimiamine.com>
+Date: Sat, 10 Oct 2026 21:51:27 +0100
+Subject: [PATCH] Burn in daylight API
+
+
+diff --git a/net/minecraft/world/entity/Mob.java b/net/minecraft/world/entity/Mob.java
+index 51dec65d0f437deb370eabbfa0369c4232caac14..699f3edfc6d3a2798c2db2967553bcfc0e027296 100644
+--- a/net/minecraft/world/entity/Mob.java
++++ b/net/minecraft/world/entity/Mob.java
+@@ -156,6 +156,7 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
+     private int homeRadius = -1;
+     public boolean aware = true; // CraftBukkit
+     public net.kyori.adventure.util.TriState despawnInPeacefulOverride = net.kyori.adventure.util.TriState.NOT_SET; // Paper - allow changing despawnInPeaceful
++    public net.kyori.adventure.util.TriState burnInDayLightOverride = net.kyori.adventure.util.TriState.NOT_SET; // Velvety - burnInDaylight API
+ 
+     protected Mob(final EntityType<? extends Mob> type, final Level level) {
+         super(type, level);
+@@ -457,6 +458,11 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
+             output.putString("Paper.DespawnInPeacefulOverride", this.despawnInPeacefulOverride.name());
+         }
+         // Paper end - allow changing despawnInPeaceful
++        // Velvety start - burnInDaylight API
++        if (this.burnInDayLightOverride != net.kyori.adventure.util.TriState.NOT_SET) {
++            output.putString("Velvety.BurnInDayLightOverride", this.burnInDayLightOverride.name());
++        }
++        // Velvety end - burnInDaylight API
+     }
+ 
+     @Override
+@@ -485,6 +491,7 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
+         this.setNoAi(input.getBooleanOr("NoAI", false));
+         this.aware = input.getBooleanOr("Bukkit.Aware", true); // CraftBukkit
+         this.despawnInPeacefulOverride = input.read("Paper.DespawnInPeacefulOverride", io.papermc.paper.util.PaperCodecs.TRI_STATE_CODEC).orElse(net.kyori.adventure.util.TriState.NOT_SET); // Paper - allow changing despawnInPeaceful
++        this.burnInDayLightOverride = input.read("Velvety.BurnInDayLightOverride", io.papermc.paper.util.PaperCodecs.TRI_STATE_CODEC).orElse(net.kyori.adventure.util.TriState.NOT_SET); // Velvety - burnInDaylight API
+     }
+ 
+     @Override
+@@ -533,7 +540,7 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
+     @Override
+     public void aiStep() {
+         super.aiStep();
+-        if (this.is(EntityTypeTags.BURN_IN_DAYLIGHT)) {
++        if (this.burnInDayLightOverride.toBooleanOrElse(this.is(EntityTypeTags.BURN_IN_DAYLIGHT))) { // Velvety - burnInDaylight API
+             this.burnUndead();
+         }
+ 
+diff --git a/net/minecraft/world/entity/monster/Phantom.java b/net/minecraft/world/entity/monster/Phantom.java
+index 99b5d4aab158e32fb9f940bb66489179527adb76..b226398cfb694874c05c4431ad771699c1215756 100644
+--- a/net/minecraft/world/entity/monster/Phantom.java
++++ b/net/minecraft/world/entity/monster/Phantom.java
+@@ -170,7 +170,7 @@ public class Phantom extends Mob implements Enemy {
+         this.setPhantomSize(input.getIntOr("size", 0));
+         // Paper start
+         this.spawningEntity = input.read("Paper.SpawningEntity", net.minecraft.core.UUIDUtil.CODEC).orElse(null);
+-        this.shouldBurnInDay = input.getBooleanOr("Paper.ShouldBurnInDay", true);
++        //this.shouldBurnInDay = input.getBooleanOr("Paper.ShouldBurnInDay", true); // Velvety - burnInDaylight API
+         // Paper end
+     }
+ 
+@@ -181,7 +181,7 @@ public class Phantom extends Mob implements Enemy {
+         output.putInt("size", this.getPhantomSize());
+         // Paper start
+         output.storeNullable("Paper.SpawningEntity", net.minecraft.core.UUIDUtil.CODEC, this.spawningEntity);
+-        output.putBoolean("Paper.ShouldBurnInDay", this.shouldBurnInDay);
++        //output.putBoolean("Paper.ShouldBurnInDay", this.shouldBurnInDay); // Velvety - burnInDaylight API
+         // Paper end
+     }
+ 
+diff --git a/net/minecraft/world/entity/monster/skeleton/AbstractSkeleton.java b/net/minecraft/world/entity/monster/skeleton/AbstractSkeleton.java
+index b195512c5a542bd1f505393d1f7c1b4ddb0119af..932245a933333a8f7e2cb0e2b7e2a61bc0e8602c 100644
+--- a/net/minecraft/world/entity/monster/skeleton/AbstractSkeleton.java
++++ b/net/minecraft/world/entity/monster/skeleton/AbstractSkeleton.java
+@@ -221,7 +221,7 @@ public abstract class AbstractSkeleton extends Monster implements RangedAttackMo
+     protected void readAdditionalSaveData(final ValueInput input) {
+         super.readAdditionalSaveData(input);
+         this.reassessWeaponGoal();
+-        this.shouldBurnInDay = input.getBooleanOr("Paper.ShouldBurnInDay", true); // Paper - shouldBurnInDay API
++        //this.shouldBurnInDay = input.getBooleanOr("Paper.ShouldBurnInDay", true); // Paper - shouldBurnInDay API // Velvety - burnInDaylight API
+     }
+ 
+     // Paper start - silent equipping
+@@ -247,7 +247,7 @@ public abstract class AbstractSkeleton extends Monster implements RangedAttackMo
+     @Override
+     protected void addAdditionalSaveData(final net.minecraft.world.level.storage.ValueOutput output) {
+         super.addAdditionalSaveData(output);
+-        output.putBoolean("Paper.ShouldBurnInDay", this.shouldBurnInDay);
++        //output.putBoolean("Paper.ShouldBurnInDay", this.shouldBurnInDay); // Velvety - burnInDaylight API
+     }
+     // Paper end - shouldBurnInDay API
+ }
+diff --git a/net/minecraft/world/entity/monster/zombie/Zombie.java b/net/minecraft/world/entity/monster/zombie/Zombie.java
+index 071c1fba954486634599eab7843f7ae751ee5be6..2da1fe9e7ded722556e2e9808fa6a0e9a541502a 100644
+--- a/net/minecraft/world/entity/monster/zombie/Zombie.java
++++ b/net/minecraft/world/entity/monster/zombie/Zombie.java
+@@ -420,7 +420,7 @@ public class Zombie extends Monster {
+         output.putBoolean("IsBaby", this.isBaby());
+         output.putBoolean("CanBreakDoors", this.canBreakDoors());
+         this.drowningTracker.addAdditionalSaveData(output);
+-        output.putBoolean("Paper.ShouldBurnInDay", this.shouldBurnInDay); // Paper - Add more Zombie API
++        //output.putBoolean("Paper.ShouldBurnInDay", this.shouldBurnInDay); // Paper - Add more Zombie API // Velvety - burnInDaylight API
+     }
+ 
+     @Override
+@@ -429,7 +429,7 @@ public class Zombie extends Monster {
+         this.setBaby(input.getBooleanOr("IsBaby", false));
+         this.setCanBreakDoors(input.getBooleanOr("CanBreakDoors", false));
+         this.drowningTracker.readAdditionalSaveData(input);
+-        this.shouldBurnInDay = input.getBooleanOr("Paper.ShouldBurnInDay", true); // Paper - Add more Zombie API
++        //this.shouldBurnInDay = input.getBooleanOr("Paper.ShouldBurnInDay", true); // Paper - Add more Zombie API // Velvety - burnInDaylight API
+     }
+ 
+     @Override

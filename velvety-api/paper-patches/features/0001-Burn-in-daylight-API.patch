@@ -1,0 +1,40 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: kacimiamine <contact@kacimiamine.com>
+Date: Sat, 10 Oct 2026 21:51:27 +0100
+Subject: [PATCH] Burn in daylight API
+
+
+diff --git a/src/main/java/org/bukkit/entity/Mob.java b/src/main/java/org/bukkit/entity/Mob.java
+index fed5af19b05f48a5fb6469f9919bbfda2ca3eb4d..27b06ddfbcba7c4c2191b6613af763cafe300ea1 100644
+--- a/src/main/java/org/bukkit/entity/Mob.java
++++ b/src/main/java/org/bukkit/entity/Mob.java
+@@ -256,4 +256,29 @@ public interface Mob extends LivingEntity, Lootable, Leashable {
+      * @return the amount of experience the mob will possibly drop
+      */
+     int getPossibleExperienceReward();
++
++    // Velvety start - burnInDaylight API
++    /**
++     * Gets whether this mob burns in daylight by default, ignoring any override.
++     *
++     * @return true if the mob burns in daylight by default
++     */
++    boolean burnsInDaylight();
++
++    /**
++     * Gets whether this mob burns in daylight, overriding its default behavior.
++     *
++     * @return {@link TriState#TRUE} to always burn in daylight, {@link TriState#FALSE}
++     *         to never burn, or {@link TriState#NOT_SET} to use the default behavior
++     */
++    TriState getBurnInDaylightOverride();
++
++    /**
++     * Sets whether this mob burns in daylight, overriding its default behavior.
++     *
++     * @param state {@link TriState#TRUE} to always burn in daylight, {@link TriState#FALSE}
++     *              to never burn, or {@link TriState#NOT_SET} to use the default behavior
++     */
++    void setBurnInDaylightOverride(TriState state);
++    // Velvety end - burnInDaylight API
+ }
