@@ -1,0 +1,306 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: kacimiamine <contact@kacimiamine.com>
+Date: Sun, 11 Oct 2026 19:52:21 +0100
+Subject: [PATCH] Allow more mobs to burn in daylight
+
+
+diff --git a/net/minecraft/world/entity/animal/camel/CamelHusk.java b/net/minecraft/world/entity/animal/camel/CamelHusk.java
+index 9708a22cf72eb2f8e69a23fc4849f788fedffd83..a9d4f8278bf785b2b7787527cb6ff826ec72698a 100644
+--- a/net/minecraft/world/entity/animal/camel/CamelHusk.java
++++ b/net/minecraft/world/entity/animal/camel/CamelHusk.java
+@@ -24,6 +24,7 @@ import org.jspecify.annotations.Nullable;
+ public class CamelHusk extends Camel {
+     public CamelHusk(final EntityType<? extends Camel> type, final Level level) {
+         super(type, level);
++        this.burnInDayLightOverride = level.velvetyConfig.camelHuskBurnInDaylightOverride; // Velvety - Allow more mobs to burn in daylight
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/entity/animal/equine/SkeletonHorse.java b/net/minecraft/world/entity/animal/equine/SkeletonHorse.java
+index 71da9124581c7f5a7a9cdd35f9629397fba75668..063b85242d734c0656ce96540c12f34fc98553e3 100644
+--- a/net/minecraft/world/entity/animal/equine/SkeletonHorse.java
++++ b/net/minecraft/world/entity/animal/equine/SkeletonHorse.java
+@@ -42,6 +42,7 @@ public class SkeletonHorse extends AbstractHorse {
+ 
+     public SkeletonHorse(final EntityType<? extends SkeletonHorse> type, final Level level) {
+         super(type, level);
++        this.burnInDayLightOverride = level.velvetyConfig.skeletonHorseBurnInDaylightOverride; // Velvety - Allow more mobs to burn in daylight
+     }
+ 
+     public static AttributeSupplier.Builder createAttributes() {
+diff --git a/net/minecraft/world/entity/animal/equine/ZombieHorse.java b/net/minecraft/world/entity/animal/equine/ZombieHorse.java
+index 09c0ec915408ea35b4644d9c7ab20efd90a705c8..59b41e929eeac19af14fac743d36ceac4e650bb8 100644
+--- a/net/minecraft/world/entity/animal/equine/ZombieHorse.java
++++ b/net/minecraft/world/entity/animal/equine/ZombieHorse.java
+@@ -48,6 +48,7 @@ public class ZombieHorse extends AbstractHorse {
+ 
+     public ZombieHorse(final EntityType<? extends ZombieHorse> type, final Level level) {
+         super(type, level);
++        this.burnInDayLightOverride = level.velvetyConfig.zombieHorseBurnInDaylightOverride; // Velvety - Allow more mobs to burn in daylight
+     }
+ 
+     public static AttributeSupplier.Builder createAttributes() {
+diff --git a/net/minecraft/world/entity/animal/golem/SnowGolem.java b/net/minecraft/world/entity/animal/golem/SnowGolem.java
+index b71d93a14e477dddc60a52a9b869ddd5b6935603..0a8edec9b6efec70bc2e7f9ba3fdfb1c00aa5eca 100644
+--- a/net/minecraft/world/entity/animal/golem/SnowGolem.java
++++ b/net/minecraft/world/entity/animal/golem/SnowGolem.java
+@@ -49,6 +49,7 @@ public class SnowGolem extends AbstractGolem implements RangedAttackMob, Shearab
+ 
+     public SnowGolem(final EntityType<? extends SnowGolem> type, final Level level) {
+         super(type, level);
++        this.burnInDayLightOverride = level.velvetyConfig.snowGolemBurnInDaylightOverride; // Velvety - Allow more mobs to burn in daylight
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/entity/animal/nautilus/ZombieNautilus.java b/net/minecraft/world/entity/animal/nautilus/ZombieNautilus.java
+index c9aa882ab43ced1d3d9b84e19feae39d6ed28b78..492b30af504e1df4a6c1d85dfa976c60bdac6d26 100644
+--- a/net/minecraft/world/entity/animal/nautilus/ZombieNautilus.java
++++ b/net/minecraft/world/entity/animal/nautilus/ZombieNautilus.java
+@@ -46,6 +46,7 @@ public class ZombieNautilus extends AbstractNautilus {
+ 
+     public ZombieNautilus(final EntityType<? extends ZombieNautilus> type, final Level level) {
+         super(type, level);
++        this.burnInDayLightOverride = level.velvetyConfig.zombieNautilusBurnInDaylightOverride; // Velvety - Allow more mobs to burn in daylight
+     }
+ 
+     public static AttributeSupplier.Builder createAttributes() {
+diff --git a/net/minecraft/world/entity/monster/Creeper.java b/net/minecraft/world/entity/monster/Creeper.java
+index 4a90294f8d8447bb2f2cef7572119274a1a2c62e..0c8c1ee101b0a3bc9c7d1618e4ce09e0737a1ed9 100644
+--- a/net/minecraft/world/entity/monster/Creeper.java
++++ b/net/minecraft/world/entity/monster/Creeper.java
+@@ -59,6 +59,7 @@ public class Creeper extends Monster {
+ 
+     public Creeper(final EntityType<? extends Creeper> type, final Level level) {
+         super(type, level);
++        this.burnInDayLightOverride = level.velvetyConfig.creeperBurnInDaylightOverride; // Velvety - Allow more mobs to burn in daylight
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/entity/monster/ElderGuardian.java b/net/minecraft/world/entity/monster/ElderGuardian.java
+index b3d0dc020027c626b6e9661a8d54095385c2f8b6..3f95cea656526577df70dd566b64ba088a7fd5ee 100644
+--- a/net/minecraft/world/entity/monster/ElderGuardian.java
++++ b/net/minecraft/world/entity/monster/ElderGuardian.java
+@@ -30,6 +30,7 @@ public class ElderGuardian extends Guardian {
+         if (this.randomStrollGoal != null) {
+             this.randomStrollGoal.setInterval(400);
+         }
++        this.burnInDayLightOverride = level.velvetyConfig.elderGuardianBurnInDaylightOverride; // Velvety - Allow more mobs to burn in daylight
+     }
+ 
+     public static AttributeSupplier.Builder createAttributes() {
+diff --git a/net/minecraft/world/entity/monster/Enderman.java b/net/minecraft/world/entity/monster/Enderman.java
+index 24085db3c0ab92a67e1857c9c03be6c6507d78c9..8b35dd4e86f134581be8261efc2133f7f30e4629 100644
+--- a/net/minecraft/world/entity/monster/Enderman.java
++++ b/net/minecraft/world/entity/monster/Enderman.java
+@@ -91,6 +91,7 @@ public class Enderman extends Monster implements NeutralMob {
+     public Enderman(final EntityType<? extends Enderman> type, final Level level) {
+         super(type, level);
+         this.setPathfindingMalus(PathType.WATER, -1.0F);
++        this.burnInDayLightOverride = level.velvetyConfig.endermanBurnInDaylightOverride; // Velvety - Allow more mobs to burn in daylight
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/entity/monster/Endermite.java b/net/minecraft/world/entity/monster/Endermite.java
+index 86758887e44c5da497a8a410e0f79fc376ad5bde..0bec254c12d5428b7bc8c6036f97d301a2f27e4a 100644
+--- a/net/minecraft/world/entity/monster/Endermite.java
++++ b/net/minecraft/world/entity/monster/Endermite.java
+@@ -34,6 +34,7 @@ public class Endermite extends Monster {
+     public Endermite(final EntityType<? extends Endermite> type, final Level level) {
+         super(type, level);
+         this.xpReward = 3;
++        this.burnInDayLightOverride = level.velvetyConfig.endermiteBurnInDaylightOverride; // Velvety - Allow more mobs to burn in daylight
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/entity/monster/Guardian.java b/net/minecraft/world/entity/monster/Guardian.java
+index 4dfab4dece54d14fb5648e44b2779b0f4ee89727..ee370055b2e7df626a8636b0bb725f4869006584 100644
+--- a/net/minecraft/world/entity/monster/Guardian.java
++++ b/net/minecraft/world/entity/monster/Guardian.java
+@@ -67,6 +67,7 @@ public class Guardian extends Monster {
+         this.moveControl = new Guardian.GuardianMoveControl<>(this);
+         this.clientSideTailAnimation = this.random.nextFloat();
+         this.clientSideTailAnimationO = this.clientSideTailAnimation;
++        this.burnInDayLightOverride = level.velvetyConfig.guardianBurnInDaylightOverride; // Velvety - Allow more mobs to burn in daylight
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/entity/monster/Phantom.java b/net/minecraft/world/entity/monster/Phantom.java
+index b226398cfb694874c05c4431ad771699c1215756..6987f3be69511352268aac76ff856b4efdb12554 100644
+--- a/net/minecraft/world/entity/monster/Phantom.java
++++ b/net/minecraft/world/entity/monster/Phantom.java
+@@ -59,6 +59,7 @@ public class Phantom extends Mob implements Enemy {
+         this.xpReward = 5;
+         this.moveControl = new Phantom.PhantomMoveControl<>(this);
+         this.lookControl = new Phantom.PhantomLookControl(this);
++        this.burnInDayLightOverride = level.velvetyConfig.phantomBurnInDaylightOverride; // Velvety - Allow more mobs to burn in daylight
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/entity/monster/Silverfish.java b/net/minecraft/world/entity/monster/Silverfish.java
+index 05332ed103cdf059f7d21138e74838399cb8b133..ab1d9be217617ffde6a52fdbea16f4b22eb399b3 100644
+--- a/net/minecraft/world/entity/monster/Silverfish.java
++++ b/net/minecraft/world/entity/monster/Silverfish.java
+@@ -35,6 +35,7 @@ public class Silverfish extends Monster {
+ 
+     public Silverfish(final EntityType<? extends Silverfish> type, final Level level) {
+         super(type, level);
++        this.burnInDayLightOverride = level.velvetyConfig.silverfishBurnInDaylightOverride; // Velvety - Allow more mobs to burn in daylight
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/entity/monster/Vex.java b/net/minecraft/world/entity/monster/Vex.java
+index 3c3cef88f503db93b2c097096c505577b945fa76..310a2d2bf0117279cd09e63950dc65f8a27b4d5a 100644
+--- a/net/minecraft/world/entity/monster/Vex.java
++++ b/net/minecraft/world/entity/monster/Vex.java
+@@ -58,6 +58,7 @@ public class Vex extends Monster implements TraceableEntity, OwnableEntity {
+         super(type, level);
+         this.moveControl = new Vex.VexMoveControl<>(this);
+         this.xpReward = 3;
++        this.burnInDayLightOverride = level.velvetyConfig.vexBurnInDaylightOverride; // Velvety - Allow more mobs to burn in daylight
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/entity/monster/breeze/Breeze.java b/net/minecraft/world/entity/monster/breeze/Breeze.java
+index 362d6462ee3984c6be219d242e10f78ecc3009a7..e20ecd2190c28ad026065c462b865e26fea72a28 100644
+--- a/net/minecraft/world/entity/monster/breeze/Breeze.java
++++ b/net/minecraft/world/entity/monster/breeze/Breeze.java
+@@ -77,6 +77,7 @@ public class Breeze extends Monster {
+         this.setPathfindingMalus(PathType.ON_TOP_OF_TRAPDOOR, -1.0F);
+         this.setPathfindingMalus(PathType.FIRE, -1.0F);
+         this.xpReward = 10;
++        this.burnInDayLightOverride = level.velvetyConfig.breezeBurnInDaylightOverride; // Velvety - Allow more mobs to burn in daylight
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/entity/monster/cubemob/Slime.java b/net/minecraft/world/entity/monster/cubemob/Slime.java
+index 984ec15bdebcb541cd6ee9014a654ea58988f6f1..39ac39242fca7cc03727941dfd75bd97ce1ca193 100644
+--- a/net/minecraft/world/entity/monster/cubemob/Slime.java
++++ b/net/minecraft/world/entity/monster/cubemob/Slime.java
+@@ -31,6 +31,7 @@ import org.jspecify.annotations.Nullable;
+ public class Slime extends AbstractCubeMob implements Enemy {
+     public Slime(final EntityType<? extends Slime> type, final Level level) {
+         super(type, level);
++        this.burnInDayLightOverride = level.velvetyConfig.slimeBurnInDaylightOverride; // Velvety - Allow more mobs to burn in daylight
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/entity/monster/skeleton/Bogged.java b/net/minecraft/world/entity/monster/skeleton/Bogged.java
+index faff25abf54e00f38b10bdb47e37ab2d100f32fb..4cbcf16dfaab57bff32ccce85a4f10c0f2a313e0 100644
+--- a/net/minecraft/world/entity/monster/skeleton/Bogged.java
++++ b/net/minecraft/world/entity/monster/skeleton/Bogged.java
+@@ -39,6 +39,7 @@ public class Bogged extends AbstractSkeleton implements Shearable {
+ 
+     public Bogged(final EntityType<? extends Bogged> type, final Level level) {
+         super(type, level);
++        this.burnInDayLightOverride = level.velvetyConfig.boggedBurnInDaylightOverride; // Velvety - Allow more mobs to burn in daylight
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/entity/monster/skeleton/Parched.java b/net/minecraft/world/entity/monster/skeleton/Parched.java
+index 986caff5325830c6d3eb0f6927c3294ae8b9ebe0..face180b3a47f54edb9e68e395b27a7eb5b802c7 100644
+--- a/net/minecraft/world/entity/monster/skeleton/Parched.java
++++ b/net/minecraft/world/entity/monster/skeleton/Parched.java
+@@ -17,6 +17,7 @@ import org.jspecify.annotations.Nullable;
+ public class Parched extends AbstractSkeleton {
+     public Parched(final EntityType<? extends AbstractSkeleton> type, final Level level) {
+         super(type, level);
++        this.burnInDayLightOverride = level.velvetyConfig.parchedBurnInDaylightOverride; // Velvety - Allow more mobs to burn in daylight
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/entity/monster/skeleton/Skeleton.java b/net/minecraft/world/entity/monster/skeleton/Skeleton.java
+index 4299aecea07926303b8a8d14fff007e19011076d..f7ce4cb0bf63bd604a29bd46ad90d69d153a83bb 100644
+--- a/net/minecraft/world/entity/monster/skeleton/Skeleton.java
++++ b/net/minecraft/world/entity/monster/skeleton/Skeleton.java
+@@ -22,6 +22,7 @@ public class Skeleton extends AbstractSkeleton {
+ 
+     public Skeleton(final EntityType<? extends Skeleton> type, final Level level) {
+         super(type, level);
++        this.burnInDayLightOverride = level.velvetyConfig.skeletonBurnInDaylightOverride; // Velvety - Allow more mobs to burn in daylight
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/entity/monster/skeleton/Stray.java b/net/minecraft/world/entity/monster/skeleton/Stray.java
+index d45556b27a55789bd91c1cb612d7f939fed9aebf..da32a3eaa7f660bb57c4b45a7ff884b15ca2d8fc 100644
+--- a/net/minecraft/world/entity/monster/skeleton/Stray.java
++++ b/net/minecraft/world/entity/monster/skeleton/Stray.java
+@@ -21,6 +21,7 @@ import org.jspecify.annotations.Nullable;
+ public class Stray extends AbstractSkeleton {
+     public Stray(final EntityType<? extends Stray> type, final Level level) {
+         super(type, level);
++        this.burnInDayLightOverride = level.velvetyConfig.strayBurnInDaylightOverride; // Velvety - Allow more mobs to burn in daylight
+     }
+ 
+     public static boolean checkStraySpawnRules(
+diff --git a/net/minecraft/world/entity/monster/spider/CaveSpider.java b/net/minecraft/world/entity/monster/spider/CaveSpider.java
+index 5e1f910303895a6ce5332894491a7203769321e2..566f69f369bf1ff25f8f056a7ac2c52e47f38a62 100644
+--- a/net/minecraft/world/entity/monster/spider/CaveSpider.java
++++ b/net/minecraft/world/entity/monster/spider/CaveSpider.java
+@@ -20,6 +20,7 @@ import org.jspecify.annotations.Nullable;
+ public class CaveSpider extends Spider {
+     public CaveSpider(final EntityType<? extends CaveSpider> type, final Level level) {
+         super(type, level);
++        this.burnInDayLightOverride = level.velvetyConfig.caveSpiderBurnInDaylightOverride; // Velvety - Allow more mobs to burn in daylight
+     }
+ 
+     public static AttributeSupplier.Builder createCaveSpider() {
+diff --git a/net/minecraft/world/entity/monster/spider/Spider.java b/net/minecraft/world/entity/monster/spider/Spider.java
+index 820a257e3cb43cbda930b5512b63eecfc6e37fa8..da6e90d25ed01fd2a363f87512e78ccfafdb0fb2 100644
+--- a/net/minecraft/world/entity/monster/spider/Spider.java
++++ b/net/minecraft/world/entity/monster/spider/Spider.java
+@@ -51,6 +51,7 @@ public class Spider extends Monster {
+ 
+     public Spider(final EntityType<? extends Spider> type, final Level level) {
+         super(type, level);
++        this.burnInDayLightOverride = level.velvetyConfig.spiderBurnInDaylightOverride; // Velvety - Allow more mobs to burn in daylight
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/entity/monster/zombie/Drowned.java b/net/minecraft/world/entity/monster/zombie/Drowned.java
+index d28dca38fd59ed9f1497d480f0fb9325ff22e2ad..d0315b3899ca2d56eb17dc6b83e34928eaa369ae 100644
+--- a/net/minecraft/world/entity/monster/zombie/Drowned.java
++++ b/net/minecraft/world/entity/monster/zombie/Drowned.java
+@@ -78,6 +78,7 @@ public class Drowned extends Zombie implements RangedAttackMob {
+         super(type, level);
+         this.moveControl = new Drowned.DrownedMoveControl<>(this);
+         this.setPathfindingMalus(PathType.WATER, 0.0F);
++        this.burnInDayLightOverride = level.velvetyConfig.drownedBurnInDaylightOverride; // Velvety - Allow more mobs to burn in daylight
+     }
+ 
+     public static AttributeSupplier.Builder createAttributes() {
+diff --git a/net/minecraft/world/entity/monster/zombie/Husk.java b/net/minecraft/world/entity/monster/zombie/Husk.java
+index 12a0b90c16bf317c6d92843e7fca1129b74bb05c..5e1a9c14a1f125fbf83da68f6fb6f4137edcabf4 100644
+--- a/net/minecraft/world/entity/monster/zombie/Husk.java
++++ b/net/minecraft/world/entity/monster/zombie/Husk.java
+@@ -36,6 +36,7 @@ public class Husk extends Zombie {
+ 
+     public Husk(final EntityType<? extends Husk> type, final Level level) {
+         super(type, level);
++        this.burnInDayLightOverride = level.velvetyConfig.huskBurnInDaylightOverride; // Velvety - Allow more mobs to burn in daylight
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/entity/monster/zombie/Zombie.java b/net/minecraft/world/entity/monster/zombie/Zombie.java
+index 2da1fe9e7ded722556e2e9808fa6a0e9a541502a..6297f1232df7b1442120cc50f3948bb36c694b22 100644
+--- a/net/minecraft/world/entity/monster/zombie/Zombie.java
++++ b/net/minecraft/world/entity/monster/zombie/Zombie.java
+@@ -118,6 +118,7 @@ public class Zombie extends Monster {
+     public Zombie(final EntityType<? extends Zombie> type, final Level level) {
+         super(type, level);
+         this.breakDoorGoal = new BreakDoorGoal(this, com.google.common.base.Predicates.in(level.paperConfig().entities.behavior.doorBreakingDifficulty.getOrDefault(type, level.paperConfig().entities.behavior.doorBreakingDifficulty.get(EntityTypes.ZOMBIE)))); // Paper - Configurable door breaking difficulty
++        this.burnInDayLightOverride = level.velvetyConfig.zombieBurnInDaylightOverride; // Velvety - Allow more mobs to burn in daylight
+     }
+ 
+     public Zombie(final Level level) {
+diff --git a/net/minecraft/world/entity/monster/zombie/ZombieVillager.java b/net/minecraft/world/entity/monster/zombie/ZombieVillager.java
+index 60c66dba6c868578a49f468da70c1abe973f64f2..9dc94da8a739ad06dc496b715c7a1edd178866c2 100644
+--- a/net/minecraft/world/entity/monster/zombie/ZombieVillager.java
++++ b/net/minecraft/world/entity/monster/zombie/ZombieVillager.java
+@@ -84,6 +84,7 @@ public class ZombieVillager extends Zombie implements VillagerDataHolder {
+ 
+     public ZombieVillager(final EntityType<? extends ZombieVillager> type, final Level level) {
+         super(type, level);
++        this.burnInDayLightOverride = level.velvetyConfig.zombieVillagerBurnInDaylightOverride; // Velvety - Allow more mobs to burn in daylight
+     }
+ 
+     @Override
