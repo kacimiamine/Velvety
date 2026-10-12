@@ -1,0 +1,18 @@
+--- a/net/minecraft/world/entity/ai/behavior/SleepInBed.java
++++ b/net/minecraft/world/entity/ai/behavior/SleepInBed.java
+@@ -49,6 +_,15 @@
+             return false;
+         }
+ 
++        // Velvety start - Villagers can't use player respawn point beds config
++        if (body instanceof net.minecraft.world.entity.npc.villager.Villager && !level.velvetyConfig.villagerCanKeepPlayerRespawnPointBed
++            && com.kacimiamine.velvety.entity.VillagerUtil.isRespawnPlayerPoint(level, target.pos())) {
++            level.getPoiManager().release(target.pos());
++            brain.eraseMemory(MemoryModuleType.HOME);
++            return false;
++        }
++        // Velvety end - Villagers can't use player respawn point beds config
++
+         Optional<Long> lastWokenMemory = brain.getMemory(MemoryModuleType.LAST_WOKEN);
+         if (lastWokenMemory.isPresent()) {
+             long timeSinceLastWoken = level.getGameTime() - lastWokenMemory.get();
