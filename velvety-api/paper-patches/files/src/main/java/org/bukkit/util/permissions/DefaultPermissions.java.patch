@@ -1,0 +1,11 @@
+--- a/src/main/java/org/bukkit/util/permissions/DefaultPermissions.java
++++ b/src/main/java/org/bukkit/util/permissions/DefaultPermissions.java
+@@ -89,6 +_,8 @@
+         CommandPermissions.registerPermissions(parent);
+         BroadcastPermissions.registerPermissions(parent);
+ 
++        com.kacimiamine.velvety.util.permission.VelvetyPermissions.registerPermissions(); // Velvety - Velvety permissions
++
+         parent.recalculatePermissibles();
+     }
+ }
