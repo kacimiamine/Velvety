@@ -79,6 +79,13 @@ public class VelvetyWorldConfig {
         shulkerBoxAlwaysOpen = getBoolean("blocks.shulker_box.always-open", shulkerBoxAlwaysOpen);
     }
 
+    public int dayCycleTicks = 12000;
+    public int nightCycleTicks = 12000;
+    private void timeSettings() {
+        dayCycleTicks = getInt("gameplay.time.day-cycle-ticks", dayCycleTicks);
+        nightCycleTicks = getInt("gameplay.time.night-cycle-ticks", nightCycleTicks);
+    }
+
     public TriState boggedBurnInDaylightOverride = TriState.NOT_SET;
     private void boggedSettings() {
         boggedBurnInDaylightOverride = getTriState("mobs.bogged.burn-in-daylight-override", boggedBurnInDaylightOverride);

@@ -1,0 +1,19 @@
+--- a/net/minecraft/world/clock/ServerClockManager.java
++++ b/net/minecraft/world/clock/ServerClockManager.java
+@@ -70,7 +_,15 @@
+     public void tick() {
+         boolean advanceTime = this.advanceTime(); // Paper - per-world time
+         if (advanceTime) {
+-            this.clocks.values().forEach(ServerClockManager.ServerClockInstance::tick);
++            this.clocks.forEach(((worldClockHolder, clockInstance) -> { // Velvety start - Custom time cycle
++                ServerLevel l = level != null ? level : server.overworld();
++                float incrementTicks = 12000F / (l.isBrightOutside() ? l.velvetyConfig.dayCycleTicks : l.velvetyConfig.nightCycleTicks);
++                float rate = clockInstance.rate;
++                clockInstance.rate *= incrementTicks;
++                clockInstance.tick();
++                clockInstance.rate = rate;
++                this.broadcastUpdates(worldClockHolder, clockInstance);
++            })); // Velvety end - Custom time cycle
+             this.setDirty();
+         }
+     }
