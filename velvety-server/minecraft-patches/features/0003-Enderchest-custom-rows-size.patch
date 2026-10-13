@@ -5,10 +5,10 @@ Subject: [PATCH] Enderchest custom rows size
 
 
 diff --git a/net/minecraft/server/players/PlayerList.java b/net/minecraft/server/players/PlayerList.java
-index a7f589970a04e520eb5cbe6dfeb333bc9cd479a8..949ca6f6ea0d59b553bb714824ace7f13beaf3f7 100644
+index 62f57eb254321902692550d0a86c24292ef9e87d..e6fff2b4ad7eae6833de37c97c5b1261f7f060be 100644
 --- a/net/minecraft/server/players/PlayerList.java
 +++ b/net/minecraft/server/players/PlayerList.java
-@@ -877,6 +877,22 @@ public abstract class PlayerList {
+@@ -878,6 +878,22 @@ public abstract class PlayerList {
          player.getBukkitEntity().recalculatePermissions(); // CraftBukkit
          this.server.getCommands().sendCommands(player);
          } // Paper - Add sendOpLevel API
