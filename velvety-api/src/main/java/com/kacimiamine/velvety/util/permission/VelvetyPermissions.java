@@ -19,6 +19,13 @@ public final class VelvetyPermissions {
 
         DefaultPermissions.registerPermission(PREFIX + "one-hit-kill-creative", "Gives the user the ability to one hit kill any entity when creative", PermissionDefault.OP, velvety);
 
+        DefaultPermissions.registerPermission(PREFIX + "enderchest.rows.1", "Allows the user to have an enderchest size of 1 row", PermissionDefault.OP, velvety);
+        DefaultPermissions.registerPermission(PREFIX + "enderchest.rows.2", "Allows the user to have an enderchest size of 2 rows", PermissionDefault.OP, velvety);
+        DefaultPermissions.registerPermission(PREFIX + "enderchest.rows.3", "Allows the user to have an enderchest size of 3 rows", PermissionDefault.OP, velvety);
+        DefaultPermissions.registerPermission(PREFIX + "enderchest.rows.4", "Allows the user to have an enderchest size of 4 rows", PermissionDefault.OP, velvety);
+        DefaultPermissions.registerPermission(PREFIX + "enderchest.rows.5", "Allows the user to have an enderchest size of 5 rows", PermissionDefault.OP, velvety);
+        DefaultPermissions.registerPermission(PREFIX + "enderchest.rows.6", "Allows the user to have an enderchest size of 6 rows", PermissionDefault.OP, velvety);
+
         velvety.recalculatePermissibles();
         return velvety;
     }

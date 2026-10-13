@@ -49,4 +49,15 @@ public class VelvetyGlobalConfig {
     private static void anvilSettings() {
         anvilCumulativeCost = getBoolean("blocks.anvil.cumulative-cost", anvilCumulativeCost);
     }
+
+    public static boolean enderChestSizeEnabled = false;
+    public static int enderChestSizeDefaultRows = -1;
+    public static boolean enderChestSizePersistHiddenRows = true;
+    public static boolean enderChestSizeUsePermission = true;
+    private static void enderChestSettings() {
+        enderChestSizeEnabled = getBoolean("player.ender_chest.size.enabled", enderChestSizeEnabled);
+        enderChestSizeDefaultRows = getInt("player.ender_chest.size.default-rows", enderChestSizeDefaultRows);
+        enderChestSizePersistHiddenRows = getBoolean("player.ender_chest.size.persist-hidden-rows", enderChestSizePersistHiddenRows);
+        enderChestSizeUsePermission = getBoolean("player.ender_chest.size.use-permission", enderChestSizeUsePermission);
+    }
 }

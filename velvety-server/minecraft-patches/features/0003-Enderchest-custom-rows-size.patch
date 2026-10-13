@@ -1,0 +1,154 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: kacimiamine <contact@kacimiamine.com>
+Date: Tue, 13 Oct 2026 14:23:34 +0100
+Subject: [PATCH] Enderchest custom rows size
+
+
+diff --git a/net/minecraft/server/players/PlayerList.java b/net/minecraft/server/players/PlayerList.java
+index a7f589970a04e520eb5cbe6dfeb333bc9cd479a8..949ca6f6ea0d59b553bb714824ace7f13beaf3f7 100644
+--- a/net/minecraft/server/players/PlayerList.java
++++ b/net/minecraft/server/players/PlayerList.java
+@@ -877,6 +877,22 @@ public abstract class PlayerList {
+         player.getBukkitEntity().recalculatePermissions(); // CraftBukkit
+         this.server.getCommands().sendCommands(player);
+         } // Paper - Add sendOpLevel API
++
++        // Velvety start - Enderchest custom rows size
++        if (com.kacimiamine.velvety.config.VelvetyGlobalConfig.enderChestSizeEnabled) {
++            int rows = com.kacimiamine.velvety.config.VelvetyGlobalConfig.enderChestSizeDefaultRows;
++            if (com.kacimiamine.velvety.config.VelvetyGlobalConfig.enderChestSizeUsePermission) {
++                org.bukkit.craftbukkit.entity.CraftHumanEntity playerBukkit = player.getBukkitEntity();
++                for (int r = 6; r >= 1; r--) {
++                    if (playerBukkit.hasPermission("velvety.enderchest.rows." + r)) {
++                        rows = r;
++                        break;
++                    }
++                }
++            }
++            player.enderChestSize = (rows == -1) ? -1 : rows * 9;
++        }
++        // Velvety end - Enderchest custom rows size
+     }
+ 
+     // Paper start - whitelist verify event / login event
+diff --git a/net/minecraft/world/SimpleContainer.java b/net/minecraft/world/SimpleContainer.java
+index 073a3bbf1b1db7eac83cf35412543f370fa089ee..0b9210e3e78b8f8566d19c483de51526b6055c22 100644
+--- a/net/minecraft/world/SimpleContainer.java
++++ b/net/minecraft/world/SimpleContainer.java
+@@ -206,6 +206,12 @@ public class SimpleContainer implements Container, StackedContentsCompatible {
+         return this.size;
+     }
+ 
++    // Velvety start - Enderchest custom rows size
++    public int getInitialContainerSize() {
++        return this.size;
++    }
++    // Velvety end - Enderchest custom rows size
++
+     @Override
+     public boolean isEmpty() {
+         for (ItemStack itemStack : this.items) {
+diff --git a/net/minecraft/world/entity/player/Player.java b/net/minecraft/world/entity/player/Player.java
+index 4068dc1cea4edca196dc0c58b4804e94dd07881e..04576a1b2158e671fe278f70b1131f6fca6a5085 100644
+--- a/net/minecraft/world/entity/player/Player.java
++++ b/net/minecraft/world/entity/player/Player.java
+@@ -174,6 +174,7 @@ public abstract class Player extends Avatar implements ContainerUser {
+     public float hurtDir;
+     public boolean affectsSpawning = true; // Paper - Affects Spawning API
+     public net.kyori.adventure.util.TriState flyingFallDamage = net.kyori.adventure.util.TriState.NOT_SET; // Paper - flying fall damage
++    public int enderChestSize = -1; // Velvety - Enderchest custom rows size
+ 
+     // CraftBukkit start
+     public boolean fauxSleeping;
+diff --git a/net/minecraft/world/inventory/PlayerEnderChestContainer.java b/net/minecraft/world/inventory/PlayerEnderChestContainer.java
+index 4df3a32faf85595372f4b250482d852c985ea3ab..b1f5b25bb81fa2ae5cc7cf0ca1dd0732e2ddcf72 100644
+--- a/net/minecraft/world/inventory/PlayerEnderChestContainer.java
++++ b/net/minecraft/world/inventory/PlayerEnderChestContainer.java
+@@ -26,11 +26,18 @@ public class PlayerEnderChestContainer extends SimpleContainer {
+     }
+ 
+     public PlayerEnderChestContainer(Player owner) {
+-        super(27);
++        super(com.kacimiamine.velvety.config.VelvetyGlobalConfig.enderChestSizeEnabled ? 54 : 27); // Velvety - Enderchest custom rows size
+         this.owner = owner;
+         // CraftBukkit end
+     }
+ 
++    // Velvety start - Enderchest custom rows size
++    @Override
++    public int getContainerSize() {
++        return com.kacimiamine.velvety.config.VelvetyGlobalConfig.enderChestSizeEnabled && this.owner.enderChestSize != -1 ? this.owner.enderChestSize : super.getContainerSize();
++    }
++    // Velvety end - Enderchest custom rows size
++
+     public void setActiveChest(final EnderChestBlockEntity activeChest) {
+         this.activeChest = activeChest;
+     }
+@@ -40,19 +47,25 @@ public class PlayerEnderChestContainer extends SimpleContainer {
+     }
+ 
+     public void fromSlots(final ValueInput.TypedInputList<ItemStackWithSlot> list) {
+-        for (int i = 0; i < this.getContainerSize(); i++) {
++        // Velvety start - Enderchest custom rows size
++        int initialContainerSize = com.kacimiamine.velvety.config.VelvetyGlobalConfig.enderChestSizePersistHiddenRows ? this.getInitialContainerSize() : this.getContainerSize();
++        for (int i = 0; i < initialContainerSize; i++) {
++        // Velvety end - Enderchest custom rows size
+             this.setItem(i, ItemStack.EMPTY);
+         }
+ 
+         for (ItemStackWithSlot item : list) {
+-            if (item.isValidInContainer(this.getContainerSize())) {
++            if (item.isValidInContainer(initialContainerSize)) { // Velvety - Enderchest custom rows size
+                 this.setItem(item.slot(), item.stack());
+             }
+         }
+     }
+ 
+     public void storeAsSlots(final ValueOutput.TypedOutputList<ItemStackWithSlot> output) {
+-        for (int i = 0; i < this.getContainerSize(); i++) {
++        // Velvety start - Enderchest custom rows size
++        int initialContainerSize = com.kacimiamine.velvety.config.VelvetyGlobalConfig.enderChestSizePersistHiddenRows ? this.getInitialContainerSize() : this.getContainerSize();
++        for (int i = 0; i < initialContainerSize; i++) {
++        // Velvety end - Enderchest custom rows size
+             ItemStack itemStack = this.getItem(i);
+             if (!itemStack.isEmpty()) {
+                 output.add(new ItemStackWithSlot(i, itemStack));
+diff --git a/net/minecraft/world/level/block/EnderChestBlock.java b/net/minecraft/world/level/block/EnderChestBlock.java
+index e611ec98f99b4cc8ca16793444f2ff7e3b4a0b18..c4e4673f4319dddef2a0d7401115b77c5fe97b6a 100644
+--- a/net/minecraft/world/level/block/EnderChestBlock.java
++++ b/net/minecraft/world/level/block/EnderChestBlock.java
+@@ -83,7 +83,7 @@ public class EnderChestBlock extends AbstractChestBlock<EnderChestBlockEntity> i
+             // Paper start - Fix InventoryOpenEvent cancellation - moved up;
+             container.setActiveChest(enderChest); // Needs to happen before ChestMenu.threeRows as it is required for opening animations
+             if (level instanceof ServerLevel serverLevel && player.openMenu(
+-                new SimpleMenuProvider((containerId, inventory, p) -> ChestMenu.threeRows(containerId, inventory, container), CONTAINER_TITLE)
++                new SimpleMenuProvider((containerId, inventory, p) -> com.kacimiamine.velvety.config.VelvetyGlobalConfig.enderChestSizeEnabled ? getEnderChestRowsSize(containerId, inventory, container, player) : ChestMenu.threeRows(containerId, inventory, container), CONTAINER_TITLE) // Velvety - Enderchest custom rows size
+             ).isPresent()) {
+             // Paper end - Fix InventoryOpenEvent cancellation - moved up;
+                 player.awardStat(Stats.OPEN_ENDERCHEST);
+@@ -96,6 +96,25 @@ public class EnderChestBlock extends AbstractChestBlock<EnderChestBlockEntity> i
+         }
+     }
+ 
++    // Velvety start - Enderchest custom rows size
++    private ChestMenu getEnderChestRowsSize(int containerId, net.minecraft.world.entity.player.Inventory inventory, net.minecraft.world.Container container, Player player) {
++        int rows = com.kacimiamine.velvety.config.VelvetyGlobalConfig.enderChestSizeDefaultRows;
++        if (com.kacimiamine.velvety.config.VelvetyGlobalConfig.enderChestSizeUsePermission) {
++            org.bukkit.craftbukkit.entity.CraftHumanEntity bukkit = player.getBukkitEntity();
++            for (int r = 6; r >= 1; r--) {
++                if (bukkit.hasPermission("velvety.enderchest.rows." + r)) {
++                    rows = r;
++                    break;
++                }
++            }
++        }
++        rows = Math.min(rows, player.getEnderChestInventory().getInitialContainerSize() / 9);
++        player.enderChestSize = (rows == -1) ? -1 : rows * 9;
++        if (rows == -1) return ChestMenu.threeRows(containerId, inventory, container);
++        return new ChestMenu(com.kacimiamine.velvety.block.EnderChestUtil.TYPES[rows - 1], containerId, inventory, container, rows);
++    }
++    // Velvety end - Enderchest custom rows size
++
+     @Override
+     public BlockEntity newBlockEntity(final BlockPos worldPosition, final BlockState blockState) {
+         return new EnderChestBlockEntity(worldPosition, blockState);
