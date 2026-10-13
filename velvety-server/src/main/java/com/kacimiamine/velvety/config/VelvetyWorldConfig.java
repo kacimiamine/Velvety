@@ -205,9 +205,16 @@ public class VelvetyWorldConfig {
 
     public boolean villagerCanClaimPlayerRespawnPointBed = true;
     public boolean villagerCanKeepPlayerRespawnPointBed = true;
+    public boolean villagerCanBeLeashed = false;
     private void villagerSettings() {
         villagerCanClaimPlayerRespawnPointBed = getBoolean("mobs.villager.can-claim-player-respawn-point-bed", villagerCanClaimPlayerRespawnPointBed);
         villagerCanKeepPlayerRespawnPointBed = getBoolean("mobs.villager.can-keep-player-respawn-point-bed", villagerCanKeepPlayerRespawnPointBed);
+        villagerCanBeLeashed = getBoolean("mobs.villager.can-be-leashed", villagerCanBeLeashed);
+    }
+
+    public boolean wanderingTraderCanBeLeashed = false;
+    private void wanderingTraderSettings() {
+        wanderingTraderCanBeLeashed = getBoolean("mobs.wandering_trader.can-be-leashed", wanderingTraderCanBeLeashed);
     }
 
     public TriState zombieBurnInDaylightOverride = TriState.NOT_SET;

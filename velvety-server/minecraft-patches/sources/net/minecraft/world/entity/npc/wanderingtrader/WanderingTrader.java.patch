@@ -1,0 +1,16 @@
+--- a/net/minecraft/world/entity/npc/wanderingtrader/WanderingTrader.java
++++ b/net/minecraft/world/entity/npc/wanderingtrader/WanderingTrader.java
+@@ -60,6 +_,13 @@
+         super(type, level);
+     }
+ 
++    // Velvety start - Villagers and Wandering traders can be leashed
++    @Override
++    public boolean canBeLeashed() {
++        return level().velvetyConfig.wanderingTraderCanBeLeashed;
++    }
++    // Velvety end - Villagers and Wandering traders can be leashed
++
+     @Override
+     protected void registerGoals() {
+         this.goalSelector.addGoal(0, new FloatGoal(this));

@@ -1,0 +1,16 @@
+--- a/net/minecraft/world/entity/npc/villager/Villager.java
++++ b/net/minecraft/world/entity/npc/villager/Villager.java
+@@ -187,6 +_,13 @@
+         this.setCanPickUpLoot(true);
+     }
+ 
++    // Velvety start - Villagers and Wandering traders can be leashed
++    @Override
++    public boolean canBeLeashed() {
++        return level().velvetyConfig.villagerCanBeLeashed;
++    }
++    // Velvety end - Villagers and Wandering traders can be leashed
++
+     @Override
+     public Brain<Villager> getBrain() {
+         return (Brain<Villager>)super.getBrain();
