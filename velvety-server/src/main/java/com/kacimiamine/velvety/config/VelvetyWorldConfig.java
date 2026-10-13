@@ -93,6 +93,11 @@ public class VelvetyWorldConfig {
         oneHitKillWhenCreativeUsePermission = getBoolean("player.one-hit-kill-when-creative.use-permission", oneHitKillWhenCreativeUsePermission);
     }
 
+    public boolean beeDiesAfterSting = true;
+    private void beeSettings() {
+        beeDiesAfterSting = getBoolean("mobs.bee.dies-after-sting", beeDiesAfterSting);
+    }
+
     public TriState boggedBurnInDaylightOverride = TriState.NOT_SET;
     private void boggedSettings() {
         boggedBurnInDaylightOverride = getTriState("mobs.bogged.burn-in-daylight-override", boggedBurnInDaylightOverride);
