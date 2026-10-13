@@ -17,6 +17,8 @@ public final class VelvetyPermissions {
 
         DefaultPermissions.registerPermission(PREFIX + "command", "Gives the user access to /velvety command", PermissionDefault.OP, velvety);
 
+        DefaultPermissions.registerPermission(PREFIX + "one-hit-kill-creative", "Gives the user the ability to one hit kill any entity when creative", PermissionDefault.OP, velvety);
+
         velvety.recalculatePermissibles();
         return velvety;
     }

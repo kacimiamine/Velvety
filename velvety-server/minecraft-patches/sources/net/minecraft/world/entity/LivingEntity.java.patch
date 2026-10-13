@@ -1,0 +1,16 @@
+--- a/net/minecraft/world/entity/LivingEntity.java
++++ b/net/minecraft/world/entity/LivingEntity.java
+@@ -1445,6 +_,13 @@
+             this.stopSleeping();
+         }
+ 
++        // Velvety start - One hit kill any entity when creative
++        if (level.velvetyConfig.oneHitKillWhenCreative && source.getEntity() instanceof Player player && player.isCreative()) {
++            if (!level.velvetyConfig.oneHitKillWhenCreativeUsePermission || player.getBukkitEntity().hasPermission("velvety.one-hit-kill-creative"))
++                damage = Float.MAX_VALUE;
++        }
++        // Velvety end - One hit kill any entity when creative
++
+         this.noActionTime = 0;
+         if (damage < 0.0F) {
+             damage = 0.0F;

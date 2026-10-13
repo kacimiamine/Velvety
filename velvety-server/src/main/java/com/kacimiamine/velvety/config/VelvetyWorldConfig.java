@@ -86,6 +86,13 @@ public class VelvetyWorldConfig {
         nightCycleTicks = getInt("gameplay.time.night-cycle-ticks", nightCycleTicks);
     }
 
+    public boolean oneHitKillWhenCreative = false;
+    public boolean oneHitKillWhenCreativeUsePermission = true;
+    private void oneHitKillWhenCreative() {
+        oneHitKillWhenCreative = getBoolean("player.one-hit-kill-when-creative.enabled", oneHitKillWhenCreative);
+        oneHitKillWhenCreativeUsePermission = getBoolean("player.one-hit-kill-when-creative.use-permission", oneHitKillWhenCreativeUsePermission);
+    }
+
     public TriState boggedBurnInDaylightOverride = TriState.NOT_SET;
     private void boggedSettings() {
         boggedBurnInDaylightOverride = getTriState("mobs.bogged.burn-in-daylight-override", boggedBurnInDaylightOverride);
