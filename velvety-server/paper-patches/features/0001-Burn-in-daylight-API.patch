@@ -27,10 +27,10 @@ index 879f57922cc04b553328fa1fe2f83afb4663db0b..d23d3e81e75ec70bab2399c51f3c9729
      }
  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/entity/CraftMob.java b/src/main/java/org/bukkit/craftbukkit/entity/CraftMob.java
-index bbfad22a63eeaee7590c88883c3da5239aa46198..f0c2a9c64149a219347555f961da458f7e58f789 100644
+index bbfad22a63eeaee7590c88883c3da5239aa46198..622311c0bc9f613f59b2c4b6e10cedde8dcb6557 100644
 --- a/src/main/java/org/bukkit/craftbukkit/entity/CraftMob.java
 +++ b/src/main/java/org/bukkit/craftbukkit/entity/CraftMob.java
-@@ -200,4 +200,21 @@ public abstract class CraftMob extends CraftLivingEntity implements Mob, io.pape
+@@ -200,4 +200,22 @@ public abstract class CraftMob extends CraftLivingEntity implements Mob, io.pape
      public boolean setLeashHolder(final org.bukkit.entity.Entity holder) {
          return io.papermc.paper.entity.PaperLeashable.super.setLeashHolder(holder);
      }
@@ -47,7 +47,8 @@ index bbfad22a63eeaee7590c88883c3da5239aa46198..f0c2a9c64149a219347555f961da458f
 +    }
 +
 +    @Override
-+    public void setBurnInDaylightOverride(final net.kyori.adventure.util.@org.jspecify.annotations.NonNull TriState state) {
++    public void setBurnInDaylightOverride(final net.kyori.adventure.util.TriState state) {
++        Preconditions.checkArgument(state != null, "TriState cannot be null");
 +        this.getHandle().burnInDayLightOverride = state;
 +    }
 +    // Velvety end - burnInDaylight API
