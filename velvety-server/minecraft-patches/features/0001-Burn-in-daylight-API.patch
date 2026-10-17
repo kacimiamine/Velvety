@@ -5,7 +5,7 @@ Subject: [PATCH] Burn in daylight API
 
 
 diff --git a/net/minecraft/world/entity/Mob.java b/net/minecraft/world/entity/Mob.java
-index 51dec65d0f437deb370eabbfa0369c4232caac14..0e7bdb238108b922ca1dfb4f75f601b0668833e3 100644
+index 92ce15b22517bda5033e6377c76abaa6a9d68d03..1f8fe164b8f0260a6fdba809d99e394ce5d3b6a2 100644
 --- a/net/minecraft/world/entity/Mob.java
 +++ b/net/minecraft/world/entity/Mob.java
 @@ -156,6 +156,7 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
@@ -16,7 +16,7 @@ index 51dec65d0f437deb370eabbfa0369c4232caac14..0e7bdb238108b922ca1dfb4f75f601b0
  
      protected Mob(final EntityType<? extends Mob> type, final Level level) {
          super(type, level);
-@@ -457,6 +458,11 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
+@@ -460,6 +461,11 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
              output.putString("Paper.DespawnInPeacefulOverride", this.despawnInPeacefulOverride.name());
          }
          // Paper end - allow changing despawnInPeaceful
@@ -28,7 +28,7 @@ index 51dec65d0f437deb370eabbfa0369c4232caac14..0e7bdb238108b922ca1dfb4f75f601b0
      }
  
      @Override
-@@ -485,6 +491,7 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
+@@ -488,6 +494,7 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
          this.setNoAi(input.getBooleanOr("NoAI", false));
          this.aware = input.getBooleanOr("Bukkit.Aware", true); // CraftBukkit
          this.despawnInPeacefulOverride = input.read("Paper.DespawnInPeacefulOverride", io.papermc.paper.util.PaperCodecs.TRI_STATE_CODEC).orElse(net.kyori.adventure.util.TriState.NOT_SET); // Paper - allow changing despawnInPeaceful
@@ -36,7 +36,7 @@ index 51dec65d0f437deb370eabbfa0369c4232caac14..0e7bdb238108b922ca1dfb4f75f601b0
      }
  
      @Override
-@@ -533,7 +540,7 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
+@@ -536,7 +543,7 @@ public abstract class Mob extends LivingEntity implements Targeting, EquipmentUs
      @Override
      public void aiStep() {
          super.aiStep();
