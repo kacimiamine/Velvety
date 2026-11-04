@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/entity/LivingEntity.java
 +++ b/net/minecraft/world/entity/LivingEntity.java
-@@ -1445,6 +_,13 @@
+@@ -1456,6 +_,13 @@
              this.stopSleeping();
          }
  
